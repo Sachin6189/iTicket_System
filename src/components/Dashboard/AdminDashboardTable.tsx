@@ -21,13 +21,13 @@ const AdminDashboardTable = () => {
             <th className="px-4 py-2 text-left">Elapsed time</th>
             <th className="px-4 py-2 text-left">Raised Time</th>
             <th className="px-4 py-2 text-left">Solution Time</th>
-            <th className="px-4 py-2 text-left">consume Time(in minutes)</th>
+            <th className="px-4 py-2 text-left">Consume Time(in minutes)</th>
             <th className="px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-        
+            
           </tr>
         </tbody>
       </table>
