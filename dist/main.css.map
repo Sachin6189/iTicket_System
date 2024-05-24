@@ -1,1 +1,0 @@
-{"version":3,"file":"main.css","mappings":";;;AAAA;AACA;AACA,oB","sources":["webpack://iticket-system/./src/index.css"],"sourcesContent":["@tailwind base;\r\n@tailwind components;\r\n@tailwind utilities;"],"names":[],"sourceRoot":""}

@@ -1,25 +1,22 @@
 import React from "react";
-import tickets from "../assets/tickets.gif"
-import openTicket from "../assets/open_tickets.gif"
-import ticketsPending from "../assets/pending.gif"
-import unclaimedTicket from "../assets/unclaimed.gif"
-import ticketsResolved from "../assets/resolved.gif"
-import raiseAccess from "../assets/access_raise.gif"
-import approval from "../assets/approve.gif"
-import arrow from "../assets/arrow-right.png"
+import tickets from "../assets/tickets.gif";
+import openTicket from "../assets/open_tickets.gif";
+import ticketsPending from "../assets/pending.gif";
+import unclaimedTicket from "../assets/unclaimed.gif";
+import ticketsResolved from "../assets/resolved.gif";
+import raiseAccess from "../assets/access_raise.gif";
+import approval from "../assets/approve.gif";
+import arrow from "../assets/arrow-right.png";
 import AdminDashboardTable from "./AdminDashboardTable";
 
-
 const AdminMain: React.FC = () => {
-
-
-const NoOfTicketsRaised = 0;
-const openTicketsCount = 0;
-const ticketsPendingOnMe = 0;
-const UnclaimedTickets = 0;
-const TicketsResolved = 0;
-const raiseAccessRequest = 0;
-const approvalPendingOnMe = 0;
+  const NoOfTicketsRaised = 0;
+  const openTicketsCount = 0;
+  const ticketsPendingOnMe = 0;
+  const UnclaimedTickets = 0;
+  const TicketsResolved = 0;
+  const raiseAccessRequest = 0;
+  const approvalPendingOnMe = 0;
 
   return (
     <div className="overflow-x-auto">
@@ -30,7 +27,7 @@ const approvalPendingOnMe = 0;
         </button>
 
         <button className="bg-gray-800 hover:bg-gray-950 text-[#47c8c3] font-bold font-[fangsong] py-2 px-4 rounded">
-       Raise Access Request
+          Raise Access Request
         </button>
       </div>
 
@@ -44,7 +41,7 @@ const approvalPendingOnMe = 0;
             <div>Ticket Raised</div>
             <div className="text-3xl">{NoOfTicketsRaised}</div>
             <div className="mt-2 flex text-gray-600 text-xs cursor-pointer">
-            More Info <img className="pl-1 h-4 w-4" src={arrow} alt="arrow" />
+              More Info <img className="pl-1 h-4 w-4" src={arrow} alt="arrow" />
             </div>
           </div>
         </div>
@@ -64,7 +61,7 @@ const approvalPendingOnMe = 0;
 
         <div className="flex flex-row items-center bg-gray-200 text-sm p-4 w-full md:w-64 h-24 border-l-8 border-yellow-400 rounded-lg font-semibold text-yellow-500 font-[fangsong]">
           <div className="w-1/4">
-          <img src={ticketsPending} alt="img" />
+            <img src={ticketsPending} alt="img" />
           </div>
           <div className="pl-4">
             <div>Tickets Pending On Me</div>
@@ -129,7 +126,7 @@ const approvalPendingOnMe = 0;
       </div>
       <AdminDashboardTable />
     </div>
-  );  
+  );
 };
 
 export default AdminMain;

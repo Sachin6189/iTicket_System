@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import loginPng from "../assets/login-profile.png";
-// import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   username: string;
@@ -8,25 +10,35 @@ interface FormData {
 }
 
 const Login = () => {
-  const [formData, setFormData] = useState<FormData>({
-    username: "",
-    password: "",
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>();
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const onSubmit = async (formData: FormData) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/login",
+        formData
+      );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+      if (response.status === 200) {
+        navigate("/dashboard");
+        console.log(response.data);
+      } else if (response.status === 401) {
+        setErrorMessage("Enter Valid credentials");
+      }
 
-    console.log("Username:", formData.username);
-    console.log("Password:", formData.password);
-
-    setFormData({ username: "", password: "" });
-
+      reset();
+    } catch (error) {
+      console.log(error);
+      setErrorMessage("Enter Valid credentials");
+    }
   };
 
   return (
@@ -35,7 +47,7 @@ const Login = () => {
         <div className="form-container absolute top-1/4 left-0 w-1/2 z-20 transition-all duration-600 ease-in-out transform translate-x-0">
           <form
             className="flex flex-col items-center justify-center h-full px-10"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <h1 className="text-4xl font-bold mb-8 text-gray-800 get-started">
               <span className="text-indigo-600">Get</span> Started
@@ -43,20 +55,39 @@ const Login = () => {
 
             <input
               type="text"
-              name="username"
               placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
+              {...register("username", {
+                required: "Username is required",
+                minLength: {
+                  value: 3,
+                  message: "Username must be at least 3 characters long",
+                },
+              })}
               className="bg-gray-100 rounded-lg mb-8 px-6 py-4 w-full focus:outline-none focus:ring-2 focus:ring-indigo-600"
             />
+            {errors.username && (
+              <span className="text-red-500">{errors.username.message}</span>
+            )}
+
             <input
               type="password"
-              name="password"
               placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters long",
+                },
+              })}
               className="bg-gray-100 rounded-lg mb-4 px-6 py-4 w-full focus:outline-none focus:ring-2 focus:ring-indigo-600"
             />
+            {errors.password && (
+              <span className="text-red-500">{errors.password.message}</span>
+            )}
+
+            {errorMessage && (
+              <span className="text-red-500 mb-4">{errorMessage}</span>
+            )}
 
             <button
               type="submit"
