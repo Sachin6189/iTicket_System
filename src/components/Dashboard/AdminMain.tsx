@@ -8,8 +8,17 @@ import raiseAccess from "../assets/access_raise.gif";
 import approval from "../assets/approve.gif";
 import arrow from "../assets/arrow-right.png";
 import AdminDashboardTable from "./AdminDashboardTable";
+import { useNavigate } from "react-router-dom";
+
 
 const AdminMain: React.FC = () => {
+
+  const navigate = useNavigate();
+
+  const raiseTicket = () => {
+    navigate("/dashboard/raiseTicket");
+  };
+
   const NoOfTicketsRaised = 0;
   const openTicketsCount = 0;
   const ticketsPendingOnMe = 0;
@@ -22,7 +31,9 @@ const AdminMain: React.FC = () => {
     <div className="overflow-x-auto">
       {/* Button and Calendar */}
       <div className="flex justify-start gap-5 items-center mt-5 pl-4">
-        <button className="bg-gray-800 hover:bg-gray-950 text-[#47c8c3] font-bold font-[fangsong] py-2 px-4 rounded">
+        <button 
+        onClick={raiseTicket}
+        className="bg-gray-800 hover:bg-gray-950 text-[#47c8c3] font-bold font-[fangsong] py-2 px-4 rounded">
           Raise New Ticket
         </button>
 

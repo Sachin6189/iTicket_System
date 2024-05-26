@@ -3,7 +3,6 @@ import Select from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-
 const RaiseTicket = () => {
   const options = [
     { value: "chocolate", label: "Chocolate" },
@@ -12,12 +11,11 @@ const RaiseTicket = () => {
   ];
 
   const customStyles = {
-    control: (provided : any) => ({
+    control: (provided: any) => ({
       ...provided,
       width: "50vh",
     }),
   };
-
 
   const modules = {
     toolbar: [
@@ -61,8 +59,8 @@ const RaiseTicket = () => {
                   On Behalf:
                 </label>
                 <Select
-                //   value={selectedEmployee}
-                //   onChange={setSelectedEmployee}
+                  //   value={selectedEmployee}
+                  //   onChange={setSelectedEmployee}
                   options={options}
                   placeholder="--Select an employee--"
                   styles={customStyles}
@@ -114,8 +112,8 @@ const RaiseTicket = () => {
                 <input
                   type="text"
                   id="contact"
-                //   value={contact}
-                //   onChange={handleContactChange}
+                  //   value={contact}
+                  //   onChange={handleContactChange}
                   placeholder="Enter Contact Number"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
@@ -130,8 +128,8 @@ const RaiseTicket = () => {
                 <input
                   type="text"
                   id="issueTitle"
-                //   value={issueTitle}
-                //   onChange={(e) => setIssueTitle(e.target.value)}
+                  //   value={issueTitle}
+                  //   onChange={(e) => setIssueTitle(e.target.value)}
                   placeholder="Enter Issue Title"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
@@ -141,8 +139,8 @@ const RaiseTicket = () => {
                   Description<span className="text-red-500">*</span>:
                 </label>
                 <ReactQuill
-                //   value={description}
-                //   onChange={setDescription}
+                  //   value={description}
+                  //   onChange={setDescription}
                   modules={modules}
                   formats={formats}
                   className="bg-white"
@@ -156,19 +154,19 @@ const RaiseTicket = () => {
                   type="file"
                   id="uploadFile"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                //   onChange={handleImageChange}
+                  //   onChange={handleImageChange}
                 />
               </div>
               <div className="flex justify-center mt-1">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 mr-4 rounded"
-                //   onClick={handleSubmit}
+                  //   onClick={handleSubmit}
                 >
                   Submit
                 </button>
                 <button
                   className="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded"
-                //   onClick={handleCancel}
+                  //   onClick={handleCancel}
                 >
                   Cancel
                 </button>
