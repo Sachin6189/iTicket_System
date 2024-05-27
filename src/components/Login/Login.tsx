@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import loginPng from "../assets/login-profile.png";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../../LoginContext";
 
 interface FormData {
   username: string;
@@ -10,6 +11,8 @@ interface FormData {
 }
 
 const Login = () => {
+  const { setUser } = useContext(LoginContext);
+
   const {
     register,
     handleSubmit,
@@ -28,6 +31,7 @@ const Login = () => {
       );
       // console.log(response.data)
       if (response.status === 200) {
+        setUser(response.data);
         navigate("/dashboard");
         console.log(response.data);
       } else if (response.status === 401) {
@@ -49,7 +53,7 @@ const Login = () => {
             className="flex flex-col items-center justify-center h-full px-10"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <h1 className="text-4xl font-bold mb-8 text-gray-800 get-started">
+            <h1 className="text-4xl font-bold mb-8 text-gray-800">
               <span className="text-indigo-600">Get</span> Started
             </h1>
 
