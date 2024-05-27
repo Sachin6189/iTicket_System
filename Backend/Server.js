@@ -11,19 +11,19 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// const db = mysql.createConnection({
-//   host: "172.27.129.80",
-//   user: "share_user",
-//   password: "share_user",
-//   database: "testdb",
-// });
-
 const db = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "",
+  host: "172.27.129.80",
+  user: "share_user",
+  password: "share_user",
   database: "testdb",
 });
+
+// const db = mysql.createConnection({
+//   host: "127.0.0.1",
+//   user: "root",
+//   password: "",
+//   database: "testdb",
+// });
 
 db.connect((err) => {
   if (err) throw err;
@@ -243,65 +243,66 @@ app.post("/api/login", (req, res) => {
 //   });
 // });
 
-// app.get("/api/employees", (req, res) => {
-//   const sql = "SELECT emp_id FROM users";
+app.get("/api/employees", (req, res) => {
+  const sql = "SELECT user_name FROM its_users";
 
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       console.error("Error executing query:", err);
-//       res.status(500).send("Internal server error");
-//       return;
-//     }
-//     const empIds = result.map((row) => row.emp_id);
-//     res.status(200).json(empIds);
-//   });
-// });
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+    const userName = result.map((row) => row.user_name);
+    res.status(200).json(userName);
+  });
+});
 
-// app.get("/api/projects", (req, res) => {
-//   const sql = "SELECT project_name FROM it_projects";
+app.get("/api/projects", (req, res) => {
+  const sql = "SELECT proj_name FROM its_projects";
 
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       console.error("Error executing query:", err);
-//       res.status(500).send("Internal server error");
-//       return;
-//     }
-//     const projectNames = result.map((row) => row.project_name);
-//     res.status(200).json(projectNames);
-//   });
-// });
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+    const projectNames = result.map((row) => row.proj_name);
+    res.status(200).json(projectNames);
+  });
+});
 
-// app.post("/api/modules", (req, res) => {
-//   const { projectName } = req.body;
-//   const sql =
-//     "SELECT module_name FROM it_modules WHERE project_id = (SELECT project_id FROM it_projects WHERE project_name = ?)";
+app.post("/api/modules", (req, res) => {
+  const { projectName } = req.body;
+  const sql =
+    "SELECT mod_name FROM its_modules WHERE proj_id = (SELECT proj_id FROM its_projects WHERE proj_name = ?)";
 
-//   db.query(sql, projectName, (err, result) => {
-//     if (err) {
-//       console.error("Error executing query:", err);
-//       res.status(500).send("Internal server error");
-//       return;
-//     }
-//     const moduleNames = result.map((row) => row.module_name);
-//     res.status(200).json(moduleNames);
-//   });
-// });
+  db.query(sql, projectName, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      console.log(result);
+      return;
+    }
+    const moduleNames = result.map((row) => row.mod_name);
+    res.status(200).json(moduleNames);
+  });
+});
 
-// app.post("/api/categories", (req, res) => {
-//   const { moduleName } = req.body;
-//   const sql =
-//     "SELECT category_name FROM it_category WHERE module_id = (SELECT module_id FROM it_modules WHERE module_name = ?)";
+app.post("/api/categories", (req, res) => {
+  const { moduleName } = req.body;
+  const sql =
+    "SELECT cat_name FROM its_category WHERE mod_id = (SELECT mod_id FROM its_modules WHERE mod_name = ?)";
 
-//   db.query(sql, moduleName, (err, result) => {
-//     if (err) {
-//       console.error("Error executing query:", err);
-//       res.status(500).send("Internal server error");
-//       return;
-//     }
-//     const categoryNames = result.map((row) => row.category_name);
-//     res.status(200).json(categoryNames);
-//   });
-// });
+  db.query(sql, moduleName, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+    const categoryNames = result.map((row) => row.cat_name);
+    res.status(200).json(categoryNames);
+  });
+});
 
 // app.post("/approve_reject", (req, res) => {
 //   const {

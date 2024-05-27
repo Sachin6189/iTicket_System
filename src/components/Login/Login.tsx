@@ -22,11 +22,11 @@ const Login = () => {
 
   const onSubmit = async (formData: FormData) => {
     try {
-      const response = await axios.post(
+      const response = await axios.post( 
         "http://localhost:5000/api/login",
         formData
       );
-
+      // console.log(response.data)
       if (response.status === 200) {
         navigate("/dashboard");
         console.log(response.data);

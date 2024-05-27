@@ -16,7 +16,7 @@ const Sidebar = () => {
         </li> */}
         <hr />
         <li
-          className="p-4 hover:bg-gray-700 cursor-pointer text-[#47c8c3] font-[fangsong] flex justify-between"
+          className="p-2 hover:bg-gray-700 cursor-pointer text-[#47c8c3] font-[fangsong] flex justify-between"
           onClick={() => setShowReportSubMenu(!showReportSubMenu)}
         >
           <div className="flex items-center">

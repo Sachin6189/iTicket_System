@@ -1,14 +1,131 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import _ from "lodash";
+
 
 const RaiseTicket = () => {
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<{ value: string; label: string } | null>(null);
+  const [filteredModules, setFilteredModules] = useState([]);
+  const [selectedModule, setSelectedModule] = useState<{ value: string; label: string } | null>(null);
+  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState<{ value: string; label: string } | null>(null);
+  const [contact, setContact] = useState("");
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [issueTitle, setIssueTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageData, setImageData] = useState("");
+
+
+
+
+  const [projects, setProjects] = useState([]);
+
+  const navigate = useNavigate();
+
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
+
+  const handleCancel = () => {
+    navigate("/dashboard");
+  };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/employees");
+        setEmployees(
+          response.data.map((userName : any) => ({ value: userName, label: userName }))
+        );
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/projects");
+      setProjects(
+        response.data.map((projectName: any) => ({
+          value: projectName,
+          label: projectName,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/modules", {
+        projectName: selectedProject?.value,
+      });
+      setFilteredModules(
+        response.data.map((moduleName: any) => ({
+          value: moduleName,
+          label: moduleName,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedProject) {
+      fetchModules();
+      setFilteredModules([]);
+      setSelectedModule(null);
+      setSelectedCategory(null);
+    } else {
+      setFilteredModules([]);
+      setSelectedModule(null);
+      setSelectedCategory(null);
+    }
+  }, [selectedProject]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/categories", {
+        moduleName: selectedModule?.value,
+      });
+      setFilteredCategories(
+        response.data.map((categoryName: any) => ({
+          value: categoryName,
+          label: categoryName,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedModule) {
+      fetchCategories();
+      setFilteredCategories([]);
+      setSelectedCategory(null);
+    } else {
+      setFilteredCategories([]);
+      setSelectedCategory(null);
+    }
+  }, [selectedModule]);
 
   const customStyles = {
     control: (provided: any) => ({
@@ -17,6 +134,25 @@ const RaiseTicket = () => {
     }),
   };
 
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    if (/^\d*$/.test(input) && input.length <= 10) {
+      setContact(input);
+    }
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result && typeof reader.result === "string") {
+          setImageData(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -42,11 +178,16 @@ const RaiseTicket = () => {
     "image",
   ];
 
+  const debouncedOnChange = _.debounce((event : any, editor : any) => {
+    const data = editor.getData();
+    setDescription(data);
+  }, 500);
+
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
-      {/* <Navbar toggleSidebar={toggleSidebar} /> */}
+      <Navbar toggleSidebar={toggleSidebar} />
       <div className="flex-grow flex">
-        {/* {showSidebar && <Sidebar />} */}
+        {showSidebar && <Sidebar />}
         <div className="flex-grow bg-gray-100 p-4 flex flex-col">
           <div className="box flex-grow overflow-y-auto">
             <h1 className="text-blue-500 font-semibold text-3xl text-center mb-4">
@@ -59,9 +200,9 @@ const RaiseTicket = () => {
                   On Behalf:
                 </label>
                 <Select
-                  //   value={selectedEmployee}
-                  //   onChange={setSelectedEmployee}
-                  options={options}
+                  value={selectedEmployee}
+                  onChange={setSelectedEmployee}
+                  options={employees}
                   placeholder="--Select an employee--"
                   styles={customStyles}
                 />
@@ -72,9 +213,9 @@ const RaiseTicket = () => {
                     Project<span className="text-red-500">*</span>:
                   </label>
                   <Select
-                    // value={selectedProject}
-                    // onChange={setSelectedProject}
-                    options={options}
+                    value={selectedProject}
+                    onChange={setSelectedProject}
+                    options={projects}
                     placeholder="--Select a project--"
                     styles={customStyles}
                   />
@@ -84,9 +225,9 @@ const RaiseTicket = () => {
                     Module<span className="text-red-500">*</span>:
                   </label>
                   <Select
-                    // value={selectedModule}
-                    // onChange={setSelectedModule}
-                    options={options}
+                    value={selectedModule}
+                    onChange={setSelectedModule}
+                    options={filteredModules}
                     placeholder="--Select a module--"
                     styles={customStyles}
                   />
@@ -96,9 +237,9 @@ const RaiseTicket = () => {
                     Category<span className="text-red-500">*</span>:
                   </label>
                   <Select
-                    // value={selectedCategory}
-                    // onChange={setSelectedCategory}
-                    options={options}
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    options={filteredCategories}
                     placeholder="--Select a category--"
                     styles={customStyles}
                   />
@@ -112,8 +253,8 @@ const RaiseTicket = () => {
                 <input
                   type="text"
                   id="contact"
-                  //   value={contact}
-                  //   onChange={handleContactChange}
+                  value={contact}
+                  onChange={handleContactChange}
                   placeholder="Enter Contact Number"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
@@ -128,8 +269,8 @@ const RaiseTicket = () => {
                 <input
                   type="text"
                   id="issueTitle"
-                  //   value={issueTitle}
-                  //   onChange={(e) => setIssueTitle(e.target.value)}
+                    value={issueTitle}
+                    onChange={(e) => setIssueTitle(e.target.value)}
                   placeholder="Enter Issue Title"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
@@ -139,8 +280,8 @@ const RaiseTicket = () => {
                   Description<span className="text-red-500">*</span>:
                 </label>
                 <ReactQuill
-                  //   value={description}
-                  //   onChange={setDescription}
+                    value={description}
+                    onChange={setDescription}
                   modules={modules}
                   formats={formats}
                   className="bg-white"
@@ -153,8 +294,8 @@ const RaiseTicket = () => {
                 <input
                   type="file"
                   id="uploadFile"
-                  className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                  //   onChange={handleImageChange}
+                  className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
+                    onChange={handleImageChange}
                 />
               </div>
               <div className="flex justify-center mt-1">
@@ -166,7 +307,7 @@ const RaiseTicket = () => {
                 </button>
                 <button
                   className="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded"
-                  //   onClick={handleCancel}
+                  onClick={handleCancel}
                 >
                   Cancel
                 </button>
