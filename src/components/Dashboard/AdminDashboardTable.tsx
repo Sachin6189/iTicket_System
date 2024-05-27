@@ -8,14 +8,14 @@ const AdminDashboardTable = () => {
   const dummyData = [
     {
       ticketID: "T12345",
-      project: "Project A",
-      module: "Module X",
+      project_name: "Project A",
+      module_name: "Module X",
       category: "Bug",
-      issueTitle: "Login issue",
+      issue_title: "Login issue",
       status: "Open",
       raiser: "John Doe",
       location: "New York",
-      contactNo: "123-456-7890",
+      contact: "123-456-7890",
       approver: "Jane Smith",
       supportPerson: "Alice Brown",
       elapsedTime: "2 days",
@@ -26,14 +26,14 @@ const AdminDashboardTable = () => {
     },
     {
       ticketID: "T12346",
-      project: "Project B",
-      module: "Module Y",
+      project_name: "Project B",
+      module_name: "Module Y",
       category: "Feature Request",
-      issueTitle: "Add new filter",
+      issue_title: "Add new filter",
       status: "In Progress",
       raiser: "Mary Johnson",
       location: "Los Angeles",
-      contactNo: "987-654-3210",
+      contact: "987-654-3210",
       approver: "Robert Brown",
       supportPerson: "Charles Green",
       elapsedTime: "1 day",
@@ -50,7 +50,7 @@ const AdminDashboardTable = () => {
       console.log(searchTerm);
       dummyData.filter(
         (item : any) =>
-          item.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.project_name.toLowerCase().includes(searchTerm.LowertCase()) ||
           item.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.issue_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,14 +102,14 @@ const AdminDashboardTable = () => {
             {dummyData.map((data, index) => (
               <tr key={index}>
                 <td className="px-4 py-2 border">{data.ticketID}</td>
-                <td className="px-4 py-2 border">{data.project}</td>
-                <td className="px-4 py-2 border">{data.module}</td>
+                <td className="px-4 py-2 border">{data.project_name}</td>
+                <td className="px-4 py-2 border">{data.module_name}</td>
                 <td className="px-4 py-2 border">{data.category}</td>
-                <td className="px-4 py-2 border">{data.issueTitle}</td>
+                <td className="px-4 py-2 border">{data.issue_title}</td>
                 <td className="px-4 py-2 border">{data.status}</td>
                 <td className="px-4 py-2 border">{data.raiser}</td>
                 <td className="px-4 py-2 border">{data.location}</td>
-                <td className="px-4 py-2 border">{data.contactNo}</td>
+                <td className="px-4 py-2 border">{data.contact}</td>
                 <td className="px-4 py-2 border">{data.approver}</td>
                 <td className="px-4 py-2 border">{data.supportPerson}</td>
                 <td className="px-4 py-2 border">{data.elapsedTime}</td>

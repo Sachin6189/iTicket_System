@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import userlogo from "../assets/user.png";
 import sidebar from "../assets/sidebar.png";
 import Logo from "../assets/logo4.png";
 import { Link, useNavigate } from "react-router-dom";
+import { LoginContext } from "../../LoginContext";
 
 const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
   const [showSignout, setShowSignout] = useState(false);
+  const { user } = useContext(LoginContext);
+
 
   const navigate = useNavigate();
-
-  const username = "Sachin Kumar";
 
   const handleSignout = () => {
     navigate("/");
@@ -44,7 +45,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
           </div>
         
           <span className="text-[#47c8c3] font-semibold font-[fangsong]">
-            {username}
+          {user.user_name}
           </span>
           <img
             src={sidebar}

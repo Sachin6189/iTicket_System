@@ -6,14 +6,14 @@ const Sidebar = () => {
   const [showReportSubMenu, setShowReportSubMenu] = useState(false);
 
   return (
-    <div className="fixed top-12 right-0 h-full w-48 bg-gray-800 z-10">
+    <div className="fixed top-14 right-0 h-full w-48 bg-gray-800 z-10">
       <ul>
-        {/* <li className="p-4 hover:bg-gray-700 cursor-pointer text-[#47c8c3] font-[fangsong]">
+        <li className="p-4 hover:bg-gray-700 cursor-pointer text-[#47c8c3] font-[fangsong]">
           <Link to="/dashboard">
             <FiHome className="inline mr-2" />
             Dashboard
           </Link>
-        </li> */}
+        </li>
         <hr />
         <li
           className="p-2 hover:bg-gray-700 cursor-pointer text-[#47c8c3] font-[fangsong] flex justify-between"

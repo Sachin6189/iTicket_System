@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Select from "react-select";
+import Select, { SingleValue } from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Navbar from "./Navbar";
@@ -8,25 +8,25 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 
+interface Option {
+  value: string;
+  label: string;
+}
 
 const RaiseTicket = () => {
   const [showSidebar, setShowSidebar] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<{ value: string; label: string } | null>(null);
-  const [filteredModules, setFilteredModules] = useState([]);
-  const [selectedModule, setSelectedModule] = useState<{ value: string; label: string } | null>(null);
-  const [filteredCategories, setFilteredCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState<{ value: string; label: string } | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Option | null>(null);
+  const [filteredModules, setFilteredModules] = useState<Option[]>([]);
+  const [selectedModule, setSelectedModule] = useState<Option | null>(null);
+  const [filteredCategories, setFilteredCategories] = useState<Option[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
   const [contact, setContact] = useState("");
-  const [employees, setEmployees] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [employees, setEmployees] = useState<Option[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Option | null>(null);
   const [issueTitle, setIssueTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageData, setImageData] = useState("");
-
-
-
-
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Option[]>([]);
 
   const navigate = useNavigate();
 
@@ -43,7 +43,10 @@ const RaiseTicket = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/employees");
         setEmployees(
-          response.data.map((userName : any) => ({ value: userName, label: userName }))
+          response.data.map((userName: string) => ({
+            value: userName,
+            label: userName,
+          }))
         );
       } catch (error) {
         console.error("Error fetching employees:", error);
@@ -56,8 +59,9 @@ const RaiseTicket = () => {
   const fetchProjects = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/projects");
+      console.log(response.data)
       setProjects(
-        response.data.map((projectName: any) => ({
+        response.data.map((projectName: string) => ({
           value: projectName,
           label: projectName,
         }))
@@ -77,7 +81,7 @@ const RaiseTicket = () => {
         projectName: selectedProject?.value,
       });
       setFilteredModules(
-        response.data.map((moduleName: any) => ({
+        response.data.map((moduleName: string) => ({
           value: moduleName,
           label: moduleName,
         }))
@@ -102,11 +106,14 @@ const RaiseTicket = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/categories", {
-        moduleName: selectedModule?.value,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/categories",
+        {
+          moduleName: selectedModule?.value,
+        }
+      );
       setFilteredCategories(
-        response.data.map((categoryName: any) => ({
+        response.data.map((categoryName: string) => ({
           value: categoryName,
           label: categoryName,
         }))
@@ -153,6 +160,7 @@ const RaiseTicket = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -178,7 +186,7 @@ const RaiseTicket = () => {
     "image",
   ];
 
-  const debouncedOnChange = _.debounce((event : any, editor : any) => {
+  const debouncedOnChange = _.debounce((event: any, editor: any) => {
     const data = editor.getData();
     setDescription(data);
   }, 500);
@@ -201,7 +209,9 @@ const RaiseTicket = () => {
                 </label>
                 <Select
                   value={selectedEmployee}
-                  onChange={setSelectedEmployee}
+                  onChange={(option: Option | null) =>
+                    setSelectedEmployee(option)
+                  }
                   options={employees}
                   placeholder="--Select an employee--"
                   styles={customStyles}
@@ -214,7 +224,9 @@ const RaiseTicket = () => {
                   </label>
                   <Select
                     value={selectedProject}
-                    onChange={setSelectedProject}
+                    onChange={(option: Option | null) =>
+                      setSelectedProject(option)
+                    }
                     options={projects}
                     placeholder="--Select a project--"
                     styles={customStyles}
@@ -226,7 +238,9 @@ const RaiseTicket = () => {
                   </label>
                   <Select
                     value={selectedModule}
-                    onChange={setSelectedModule}
+                    onChange={(option: Option | null) =>
+                      setSelectedModule(option)
+                    }
                     options={filteredModules}
                     placeholder="--Select a module--"
                     styles={customStyles}
@@ -238,14 +252,15 @@ const RaiseTicket = () => {
                   </label>
                   <Select
                     value={selectedCategory}
-                    onChange={setSelectedCategory}
+                    onChange={(option: Option | null) =>
+                      setSelectedCategory(option)
+                    }
                     options={filteredCategories}
                     placeholder="--Select a category--"
                     styles={customStyles}
                   />
                 </div>
               </div>
-
               <div className="w-full px-1 mb-4 sm:mb-0">
                 <label htmlFor="contact" className="block mb-1">
                   Contact<span className="text-red-500">*</span>:
@@ -258,9 +273,6 @@ const RaiseTicket = () => {
                   placeholder="Enter Contact Number"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
-                {/* {contactError && (
-                  <p className="text-red-500 text-sm mt-1">{contactError}</p>
-                )} */}
               </div>
               <div className="w-full mb-4 px-1 sm:mb-0">
                 <label htmlFor="issueTitle" className="block mb-1">
@@ -269,8 +281,8 @@ const RaiseTicket = () => {
                 <input
                   type="text"
                   id="issueTitle"
-                    value={issueTitle}
-                    onChange={(e) => setIssueTitle(e.target.value)}
+                  value={issueTitle}
+                  onChange={(e) => setIssueTitle(e.target.value)}
                   placeholder="Enter Issue Title"
                   className="border-gray-300 border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
                 />
@@ -280,8 +292,8 @@ const RaiseTicket = () => {
                   Description<span className="text-red-500">*</span>:
                 </label>
                 <ReactQuill
-                    value={description}
-                    onChange={setDescription}
+                  value={description}
+                  onChange={setDescription}
                   modules={modules}
                   formats={formats}
                   className="bg-white"
@@ -295,7 +307,7 @@ const RaiseTicket = () => {
                   type="file"
                   id="uploadFile"
                   className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                    onChange={handleImageChange}
+                  onChange={handleImageChange}
                 />
               </div>
               <div className="flex justify-center mt-1">
@@ -337,5 +349,4 @@ const RaiseTicket = () => {
     </div>
   );
 };
-
 export default RaiseTicket;
