@@ -258,7 +258,7 @@ app.get("/api/employees", (req, res) => {
 });
 
 app.get("/api/projects", (req, res) => {
-  const sql = "SELECT proj_name FROM its_projects";
+  const sql = "SELECT proj_id, proj_name FROM its_projects";
 
   db.query(sql, (err, result) => {
     if (err) {
@@ -266,15 +266,17 @@ app.get("/api/projects", (req, res) => {
       res.status(500).send("Internal server error");
       return;
     }
-    const projectNames = result.map((row) => row.proj_name);
-    res.status(200).json(projectNames);
+    // console.log(result);
+    // const projectNames = result.map((row) => row.proj_name);
+    res.status(200).json(result);
+    
   });
 });
 
 app.post("/api/modules", (req, res) => {
   const { projectName } = req.body;
   const sql =
-    "SELECT mod_name FROM its_modules WHERE proj_id = (SELECT proj_id FROM its_projects WHERE proj_name = ?)";
+    "SELECT mod_id, mod_name FROM its_modules WHERE proj_id = (SELECT proj_id FROM its_projects WHERE proj_name = ?)";
 
   db.query(sql, projectName, (err, result) => {
     if (err) {
@@ -283,15 +285,17 @@ app.post("/api/modules", (req, res) => {
       console.log(result);
       return;
     }
-    const moduleNames = result.map((row) => row.mod_name);
-    res.status(200).json(moduleNames);
+  
+    // console.log(result);
+    // const moduleNames = result.map((row) => row.mod_name);
+    res.status(200).json(result);
   });
 });
 
 app.post("/api/categories", (req, res) => {
   const { moduleName } = req.body;
   const sql =
-    "SELECT cat_name FROM its_category WHERE mod_id = (SELECT mod_id FROM its_modules WHERE mod_name = ?)";
+    "SELECT cat_id, cat_name FROM its_category WHERE mod_id = (SELECT mod_id FROM its_modules WHERE mod_name = ?)";
 
   db.query(sql, moduleName, (err, result) => {
     if (err) {
@@ -299,8 +303,9 @@ app.post("/api/categories", (req, res) => {
       res.status(500).send("Internal server error");
       return;
     }
-    const categoryNames = result.map((row) => row.cat_name);
-    res.status(200).json(categoryNames);
+    // console.log(result);
+    // const categoryNames = result.map((row) => row.cat_name);
+    res.status(200).json(result);
   });
 });
 

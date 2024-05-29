@@ -56,14 +56,15 @@ const RaiseTicket = () => {
     fetchEmployees();
   }, []);
 
+
   const fetchProjects = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/projects");
-      console.log(response.data)
+      // console.log(response.data);
       setProjects(
-        response.data.map((projectName: string) => ({
-          value: projectName,
-          label: projectName,
+        response.data.map((project: any) => ({
+          value: project.proj_name,
+          label: project.proj_name,
         }))
       );
     } catch (error) {
@@ -80,10 +81,12 @@ const RaiseTicket = () => {
       const response = await axios.post("http://localhost:5000/api/modules", {
         projectName: selectedProject?.value,
       });
+  
+      console.log(response.data);
       setFilteredModules(
-        response.data.map((moduleName: string) => ({
-          value: moduleName,
-          label: moduleName,
+        response.data.map((moduleName: any) => ({
+          value: moduleName.mod_name,
+          label: moduleName.mod_name,
         }))
       );
     } catch (error) {
@@ -113,9 +116,9 @@ const RaiseTicket = () => {
         }
       );
       setFilteredCategories(
-        response.data.map((categoryName: string) => ({
+        response.data.map((categoryName: any) => ({
           value: categoryName,
-          label: categoryName,
+          label: categoryName.cat_name,
         }))
       );
     } catch (error) {
