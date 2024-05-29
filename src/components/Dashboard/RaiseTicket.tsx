@@ -27,6 +27,7 @@ const RaiseTicket = () => {
   const [description, setDescription] = useState("");
   const [imageData, setImageData] = useState("");
   const [projects, setProjects] = useState<Option[]>([]);
+  const [contactError, setContactError] = useState("");
 
   const navigate = useNavigate();
 
@@ -56,7 +57,6 @@ const RaiseTicket = () => {
     fetchEmployees();
   }, []);
 
-
   const fetchProjects = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/projects");
@@ -81,7 +81,7 @@ const RaiseTicket = () => {
       const response = await axios.post("http://localhost:5000/api/modules", {
         projectName: selectedProject?.value,
       });
-  
+
       console.log(response.data);
       setFilteredModules(
         response.data.map((moduleName: any) => ({
@@ -117,7 +117,7 @@ const RaiseTicket = () => {
       );
       setFilteredCategories(
         response.data.map((categoryName: any) => ({
-          value: categoryName,
+          value: categoryName.cat_name,
           label: categoryName.cat_name,
         }))
       );
@@ -194,6 +194,42 @@ const RaiseTicket = () => {
     setDescription(data);
   }, 500);
 
+  const handleSubmit = async () => {
+    const contactRegex = /^\d{10}$/;
+    if (
+      !selectedProject ||
+      !selectedModule ||
+      !selectedCategory ||
+      !contact ||
+      !issueTitle ||
+      !description
+    ) {
+      alert("Please fill in all compulsory fields marked with *");
+      return;
+    }
+
+    if (!contactRegex.test(contact)) {
+      setContactError("Contact number must be 10 digits");
+      return;
+    } else {
+      setContactError("");
+    }
+    debugger
+    const response = await axios.post("http://localhost:5000/submit", {
+    // const ticketData = {
+      onbehalf_name: selectedEmployee,
+
+      project: selectedProject,
+      Module: selectedModule,
+      Category: selectedCategory,
+      Contact_no: contact,
+      issueSubject: issueTitle,
+      issue_desc: description,
+      })
+    
+    // console.log(ticketData);
+  };
+
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
       <Navbar toggleSidebar={toggleSidebar} />
@@ -231,7 +267,7 @@ const RaiseTicket = () => {
                       setSelectedProject(option)
                     }
                     options={projects}
-                    placeholder="--Select a project--"
+                    placeholder="--Search a project--"
                     styles={customStyles}
                   />
                 </div>
@@ -245,7 +281,7 @@ const RaiseTicket = () => {
                       setSelectedModule(option)
                     }
                     options={filteredModules}
-                    placeholder="--Select a module--"
+                    placeholder="--Search a module--"
                     styles={customStyles}
                   />
                 </div>
@@ -259,7 +295,7 @@ const RaiseTicket = () => {
                       setSelectedCategory(option)
                     }
                     options={filteredCategories}
-                    placeholder="--Select a category--"
+                    placeholder="--Search a category--"
                     styles={customStyles}
                   />
                 </div>
@@ -316,7 +352,7 @@ const RaiseTicket = () => {
               <div className="flex justify-center mt-1">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 mr-4 rounded"
-                  //   onClick={handleSubmit}
+                  onClick={handleSubmit}
                 >
                   Submit
                 </button>

@@ -50,48 +50,48 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// app.post("/submit", (req, res) => {
-//   const {
-//     selectedEmployee,
-//     empID,
-//     selectedProject,
-//     selectedModule,
-//     selectedCategory,
-//     contact,
-//     issueTitle,
-//     description,
-//     imageData,
-//   } = req.body;
+app.post("/submit", (req, res) => {
+  const {
+    selectedEmployee,
+    empID,
+    selectedProject,
+    selectedModule,
+    selectedCategory,
+    contact,
+    issueTitle,
+    description,
+    imageData,
+  } = req.body;
 
-//   const raisedTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-//   const randomId = Math.floor(Math.random() * 9000 + 1000);
+  // const raisedTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  // const randomId = Math.floor(Math.random() * 9000 + 1000);
 
-//   const onBehalfValue = selectedEmployee ? selectedEmployee.value : null;
+  const onBehalfValue = selectedEmployee ? selectedEmployee.value : null;
 
-//   const sql =
-//     "INSERT INTO it_tickets (ticket_id, on_behalf,emp_id, project_name, module_name, category, contact, issue_title, description, image_data, raised_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const sql =
+    "INSERT INTO it_tickets (onbehalf_name,emp_id, project_name, module_name, category, contact, issue_title, description, image_data, raised_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-//   db.query(
-//     sql,
-//     [
-//       randomId,
-//       onBehalfValue,
-//       empID,
-//       selectedProject.value,
-//       selectedModule.value,
-//       selectedCategory.value,
-//       contact,
-//       issueTitle,
-//       description,
-//       imageData,
-//       raisedTime,
-//     ],
-//     (err, result) => {
-//       if (err) throw err;
-//       res.status(200).send("Data sent successfully!");
-//     }
-//   );
-// });
+  db.query(
+    sql,
+    [
+      randomId,
+      onBehalfValue,
+      empID,
+      selectedProject.value,
+      selectedModule.value,
+      selectedCategory.value,
+      contact,
+      issueTitle,
+      description,
+      imageData,
+      raisedTime,
+    ],
+    (err, result) => {
+      if (err) throw err;
+      res.status(200).send("Data sent successfully!");
+    }
+  );
+});
 
 // app.get("/it_tickets", (req, res) => {
 //   const sql = `
