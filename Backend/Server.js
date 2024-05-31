@@ -103,7 +103,7 @@ app.post("/submit", (req, res) => {
   } = req.body;
 
   const sql =
-    "INSERT INTO its_tickets (issuer_id, project_id, module_id, category_id, contact_no, issue_subject, issue_desc, created_by, raiser_name, raiser_email, onbehalf_name, locn_name, company_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO its_tickets (issuer_id, project_name, module_name, category_name, contact_no, issue_subject, issue_desc, created_by, raiser_name, raiser_email, onbehalf_name, locn_name, company_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   db.query(
     sql,
@@ -128,6 +128,20 @@ app.post("/submit", (req, res) => {
     }
   );
 });
+
+app.get("/api/tickets", (req, res) => {
+  const sql = "SELECT * FROM its_tickets";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+    res.status(200).json(result);
+  });
+});
+
 
 
 app.get("/api/employees", (req, res) => {

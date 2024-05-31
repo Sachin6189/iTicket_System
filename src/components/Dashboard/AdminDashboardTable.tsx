@@ -1,61 +1,46 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import _ from "lodash";
+import axios from "axios";
 
-const AdminDashboardTable = () => {
+const AdminDashboardTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [ticketData, setTicketData] = useState<any[]>([]);
 
+  const fetchTicketData = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/tickets");
+      // console.log(response.data);
+      const sortedData = response.data
+      .slice()
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.created.toString());
+        const dateB = new Date(b.created.toString());
+        return dateB.getTime() - dateA.getTime();
+      });
 
-  const dummyData = [
-    {
-      ticketID: "T12345",
-      project_name: "Project A",
-      module_name: "Module X",
-      category: "Bug",
-      issue_title: "Login issue",
-      status: "Open",
-      raiser: "John Doe",
-      location: "New York",
-      contact: "123-456-7890",
-      approver: "Jane Smith",
-      supportPerson: "Alice Brown",
-      elapsedTime: "2 days",
-      raisedTime: "2023-05-25 10:00 AM",
-      solutionTime: "2023-05-27 02:00 PM",
-      consumeTime: 300,
-      action: "View"
-    },
-    {
-      ticketID: "T12346",
-      project_name: "Project B",
-      module_name: "Module Y",
-      category: "Feature Request",
-      issue_title: "Add new filter",
-      status: "In Progress",
-      raiser: "Mary Johnson",
-      location: "Los Angeles",
-      contact: "987-654-3210",
-      approver: "Robert Brown",
-      supportPerson: "Charles Green",
-      elapsedTime: "1 day",
-      raisedTime: "2023-05-26 09:00 AM",
-      solutionTime: "2023-05-28 01:00 PM",
-      consumeTime: 480,
-      action: "View"
-    },
-    
-  ];
+      setTicketData(sortedData);
+      
 
+    } catch (error) {
+      console.error("Error fetching ticket data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTicketData();
+  }, []);
+  
   const debouncedFilterData = _.debounce((searchTerm) => {
     // setFilterData(
-      console.log(searchTerm);
-      dummyData.filter(
-        (item : any) =>
-          item.project_name.toLowerCase().includes(searchTerm.LowertCase()) ||
-          item.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.issue_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.location.toLowerCase().includes(searchTerm.toLowerCase())
+    
+      ticketData.filter(
+        (data : any) =>
+          data.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          data.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          data.issue_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          data.contact.toLowerCase().includes(searchTerm.toLowerCase())||
+          data.location.toLowerCase().includes(searchTerm.toLowerCase())
       )
     // );
     // setCurrentPage(1);
@@ -91,32 +76,44 @@ const AdminDashboardTable = () => {
               <th className="px-4 py-2 text-left">Contact No.</th>
               <th className="px-4 py-2 text-left">Approver</th>
               <th className="px-4 py-2 text-left">Support Person</th>
-              <th className="px-4 py-2 text-left">Elapsed time</th>
+              {/* <th className="px-4 py-2 text-left">Elapsed time</th> */}
               <th className="px-4 py-2 text-left">Raised Time</th>
-              <th className="px-4 py-2 text-left">Solution Time</th>
-              <th className="px-4 py-2 text-left">Consume Time(in minutes)</th>
-              <th className="px-4 py-2 text-left">Action</th>
+              {/* <th className="px-4 py-2 text-left">Solution Time</th> */}
+              {/* <th className="px-4 py-2 text-left">Consume Time(in minutes)</th> */}
+              {/* <th className="px-4 py-2 text-left">Action</th> */}
             </tr>
           </thead>
           <tbody>
-            {dummyData.map((data, index) => (
+            {ticketData.map((data, index) => (
               <tr key={index}>
-                <td className="px-4 py-2 border">{data.ticketID}</td>
+                <td className="px-4 py-2 border">{data.ticket_id}</td>
                 <td className="px-4 py-2 border">{data.project_name}</td>
                 <td className="px-4 py-2 border">{data.module_name}</td>
-                <td className="px-4 py-2 border">{data.category}</td>
-                <td className="px-4 py-2 border">{data.issue_title}</td>
+                <td className="px-4 py-2 border">{data.category_name}</td>
+                <td className="px-4 py-2 border">{data.issue_subject}</td>
                 <td className="px-4 py-2 border">{data.status}</td>
-                <td className="px-4 py-2 border">{data.raiser}</td>
-                <td className="px-4 py-2 border">{data.location}</td>
-                <td className="px-4 py-2 border">{data.contact}</td>
-                <td className="px-4 py-2 border">{data.approver}</td>
-                <td className="px-4 py-2 border">{data.supportPerson}</td>
-                <td className="px-4 py-2 border">{data.elapsedTime}</td>
-                <td className="px-4 py-2 border">{data.raisedTime}</td>
-                <td className="px-4 py-2 border">{data.solutionTime}</td>
-                <td className="px-4 py-2 border">{data.consumeTime}</td>
-                <td className="px-4 py-2 border">{data.action}</td>
+                <td className="px-4 py-2 border">{data.raiser_name}</td>
+                <td className="px-4 py-2 border">{data.locn_name}</td>
+                <td className="px-4 py-2 border">{data.contact_no}</td>
+                <td className="px-4 py-2 border">{data.approver_name}</td>
+                <td className="px-4 py-2 border">{data.asignto_name}</td>
+                {/* <td className="px-4 py-2 border">{data.elapsedTime}</td> */}
+                <td className="px-4 py-2 border">
+                  {new Date(data.created)
+                    .toLocaleString("en-IN", {
+                      year: "numeric",
+                      month: "numeric",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h12",
+                    })
+                    .replace(/\bam\b/g, "AM")
+                    .replace(/\bpm\b/g, "PM")}
+                </td>
+                {/* <td className="px-4 py-2 border">{data.solutionTime}</td> */}
+                {/* <td className="px-4 py-2 border">{data.consumeTime}</td> */}
+                {/* <td className="px-4 py-2 border">{data.action}</td> */}
               </tr>
             ))}
           </tbody>
