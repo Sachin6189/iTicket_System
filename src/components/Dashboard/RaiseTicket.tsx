@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import Select, { SingleValue } from "react-select";
+import React, { useState, useEffect, useContext } from "react";
+import Select from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Navbar from "./Navbar";
@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
+import { LoginContext } from "../../LoginContext";
 
 interface Option {
   value: string;
@@ -27,8 +28,14 @@ const RaiseTicket = () => {
   const [description, setDescription] = useState("");
   const [imageData, setImageData] = useState("");
   const [projects, setProjects] = useState<Option[]>([]);
+  const [contactError, setContactError] = useState("");
 
   const navigate = useNavigate();
+
+  const { user } = useContext(LoginContext);
+  const { user_id, user_name, user_email, location, comp_name } = user;
+
+
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
@@ -56,11 +63,9 @@ const RaiseTicket = () => {
     fetchEmployees();
   }, []);
 
-
   const fetchProjects = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/projects");
-      // console.log(response.data);
       setProjects(
         response.data.map((project: any) => ({
           value: project.proj_name,
@@ -81,8 +86,7 @@ const RaiseTicket = () => {
       const response = await axios.post("http://localhost:5000/api/modules", {
         projectName: selectedProject?.value,
       });
-  
-      console.log(response.data);
+      
       setFilteredModules(
         response.data.map((moduleName: any) => ({
           value: moduleName.mod_name,
@@ -117,7 +121,7 @@ const RaiseTicket = () => {
       );
       setFilteredCategories(
         response.data.map((categoryName: any) => ({
-          value: categoryName,
+          value: categoryName.cat_name,
           label: categoryName.cat_name,
         }))
       );
@@ -151,19 +155,6 @@ const RaiseTicket = () => {
     }
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result && typeof reader.result === "string") {
-          setImageData(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -193,6 +184,90 @@ const RaiseTicket = () => {
     const data = editor.getData();
     setDescription(data);
   }, 500);
+
+  const handleSubmit = async () => {
+    const contactRegex = /^\d{10}$/;
+    if (
+      !selectedProject ||
+      !selectedModule ||
+      !selectedCategory ||
+      !contact ||
+      !issueTitle ||
+      !description
+    ) {
+      alert("Please fill in all compulsory fields marked with *");
+      return;
+    }
+
+    if (!contactRegex.test(contact)) {
+      setContactError("Contact number must be 10 digits");
+      return;
+    } else {
+      setContactError("");
+    }
+
+    const issuerUserId = user_id;
+    const projectId = selectedProject.value;
+    const moduleId = selectedModule.value;
+    const categoryId = selectedCategory.value;
+    const contactNo = contact;
+    const issueSubject = issueTitle;
+    const issueDesc = description;
+    const createdBy = user_id;
+    const raiserName = user_name;
+    const raiserEmail = user_email;
+    const onBehalfName = selectedEmployee ? selectedEmployee.value : null;
+    const locnName = location;
+    const companyName = comp_name;
+
+    try {
+      const response = await axios.post("http://localhost:5000/submit", {
+        issuerUserId,
+        projectId,
+        moduleId,
+        categoryId,
+        contactNo,
+        issueSubject,
+        issueDesc,
+        createdBy,
+        raiserName,
+        raiserEmail,
+        onBehalfName,
+        locnName,
+        companyName,
+      });
+ 
+      alert("Ticket Raised Successfully, Thank You!")
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Error Submitting Ticket")
+      console.error("Error submitting ticket:", error);  
+    }
+  };
+
+
+
+  const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      axios.post('http://localhost:5000/Uploads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        console.log('File uploaded successfully:', response.data);
+       
+        setImageData(response.data.fileUrl || '');
+      })
+      .catch((error) => {
+        console.error('Error uploading file:', error);
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
@@ -231,7 +306,7 @@ const RaiseTicket = () => {
                       setSelectedProject(option)
                     }
                     options={projects}
-                    placeholder="--Select a project--"
+                    placeholder="--Search a project--"
                     styles={customStyles}
                   />
                 </div>
@@ -245,7 +320,7 @@ const RaiseTicket = () => {
                       setSelectedModule(option)
                     }
                     options={filteredModules}
-                    placeholder="--Select a module--"
+                    placeholder="--Search a module--"
                     styles={customStyles}
                   />
                 </div>
@@ -259,7 +334,7 @@ const RaiseTicket = () => {
                       setSelectedCategory(option)
                     }
                     options={filteredCategories}
-                    placeholder="--Select a category--"
+                    placeholder="--Search a category--"
                     styles={customStyles}
                   />
                 </div>
@@ -310,13 +385,13 @@ const RaiseTicket = () => {
                   type="file"
                   id="uploadFile"
                   className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                  onChange={handleImageChange}
+                  // onChange={handleImage}
                 />
               </div>
               <div className="flex justify-center mt-1">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 mr-4 rounded"
-                  //   onClick={handleSubmit}
+                  onClick={handleSubmit}
                 >
                   Submit
                 </button>
