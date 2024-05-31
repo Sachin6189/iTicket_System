@@ -29,11 +29,11 @@ const Login = () => {
         "http://localhost:5000/api/login",
         formData
       );
-      // console.log(response.data)
+      // console.log(formData)
       if (response.status === 200) {
         setUser(response.data);
         navigate("/dashboard");
-        console.log(response.data);
+        // console.log(response.data);
       } else if (response.status === 401) {
         setErrorMessage("Enter Valid credentials");
       }
