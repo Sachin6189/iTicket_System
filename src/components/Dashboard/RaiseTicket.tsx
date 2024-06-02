@@ -14,7 +14,7 @@ interface Option {
   label: string;
 }
 
-const RaiseTicket = () => {
+const RaiseTicket: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Option | null>(null);
   const [filteredModules, setFilteredModules] = useState<Option[]>([]);
@@ -26,7 +26,7 @@ const RaiseTicket = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Option | null>(null);
   const [issueTitle, setIssueTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [imageData, setImageData] = useState("");
+  // const [imageData, setImageData] = useState("");
   const [projects, setProjects] = useState<Option[]>([]);
   const [contactError, setContactError] = useState("");
 
@@ -247,27 +247,27 @@ const RaiseTicket = () => {
 
 
 
-  const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
+  // const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     const formData = new FormData();
+  //     formData.append('file', file);
   
-      axios.post('http://localhost:5000/Uploads', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then((response) => {
-        console.log('File uploaded successfully:', response.data);
+  //     axios.post('http://localhost:5000/Uploads', formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     })
+  //     .then((response) => {
+  //       console.log('File uploaded successfully:', response.data);
        
-        setImageData(response.data.fileUrl || '');
-      })
-      .catch((error) => {
-        console.error('Error uploading file:', error);
-      });
-    }
-  };
+  //       setImageData(response.data.fileUrl || '');
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error uploading file:', error);
+  //     });
+  //   }
+  // };
 
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
