@@ -29,6 +29,7 @@ const RaiseTicket: React.FC = () => {
   // const [imageData, setImageData] = useState("");
   const [projects, setProjects] = useState<Option[]>([]);
   const [contactError, setContactError] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const navigate = useNavigate();
 
@@ -220,6 +221,23 @@ const RaiseTicket: React.FC = () => {
     const locnName = location;
     const companyName = comp_name;
 
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const response = await axios.post('http://localhost:5000/Uploads', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log('File uploaded successfully:', response.data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+
+
     try {
       const response = await axios.post("http://localhost:5000/submit", {
         issuerUserId,
@@ -247,27 +265,14 @@ const RaiseTicket: React.FC = () => {
 
 
 
-  // const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const formData = new FormData();
-  //     formData.append('file', file);
-  
-  //     axios.post('http://localhost:5000/Uploads', formData, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //     })
-  //     .then((response) => {
-  //       console.log('File uploaded successfully:', response.data);
-       
-  //       setImageData(response.data.fileUrl || '');
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error uploading file:', error);
-  //     });
-  //   }
-  // };
+  const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
@@ -382,10 +387,10 @@ const RaiseTicket: React.FC = () => {
                   Upload File:
                 </label>
                 <input
-                  type="file"
-                  id="uploadFile"
-                  className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                  // onChange={handleImage}
+                   type="file"
+                   id="uploadFile"
+                   className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
+                   onChange={handleImage}
                 />
               </div>
               <div className="flex justify-center mt-1">
