@@ -19,7 +19,7 @@ if (rootElement) {
       <BrowserRouter basename="/">
         <LoginProvider>
           <App />
-        </LoginProvider>
+        </LoginProvider>  
       </BrowserRouter>
     </React.StrictMode>
   );

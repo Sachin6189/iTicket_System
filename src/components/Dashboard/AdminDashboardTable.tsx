@@ -12,15 +12,6 @@ const AdminDashboardTable: React.FC = () => {
   const [showReplyTicket, setShowReplyTicket] = useState(false);
 
 
-  const handleIssueClick = (data : any) => {
-    setSelectedTicket(data);
-    setShowReplyTicket(true);
-  };
-
-  const toggleReplyTicket = () => {
-    setShowReplyTicket(!showReplyTicket);
-  };
-
   const fetchTicketData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/tickets");
@@ -57,6 +48,16 @@ const AdminDashboardTable: React.FC = () => {
     setCurrentPage(1);
   }, 500);
 
+
+
+  const handleIssueClick = (data : any) => {
+    setSelectedTicket(data);
+    setShowReplyTicket(true);
+  };
+
+  const toggleReplyTicket = () => {
+    setShowReplyTicket(!showReplyTicket);
+  };
   return (
     <div className="container max-w-full px-4 py-8">
       <div className="flex justify-end mb-4">
@@ -154,7 +155,8 @@ const AdminDashboardTable: React.FC = () => {
         </button>
       </div>
       {showReplyTicket && (
-        <ReplyTicket ticket={selectedTicket} onClose={toggleReplyTicket} />
+        <ReplyTicket ticket={selectedTicket} onClose={toggleReplyTicket}  />
+     
       )}
     </div>
   );

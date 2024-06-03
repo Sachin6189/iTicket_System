@@ -9,6 +9,21 @@ import _ from "lodash";
 import Select from "react-select";
 
 const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
+  const [showForm, setShowForm] = useState(false);
+
+  const handleReplyClick = () => {
+    setShowForm(true);
+  };
+
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
+
+const handleSave = () => {
+  console.log("something")
+}
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900 bg-opacity-75">
       <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-full w-full lg:w-3/4 md:w-5/6 border-2 border-gray-500">
@@ -28,7 +43,7 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
             <div className="bg-gray-100 rounded-lg p-4 mb-4 shadow-md">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 Issue Title:{" "}
-                <span className="text-gray-600">{ticket.issue_title}</span>
+                <span className="text-gray-600">{ticket.issue_subject}</span>
               </h3>
               <p className="text-gray-600 text-base mb-2">
                 Project: {ticket.project_name}
@@ -37,14 +52,14 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                 Module: {ticket.module_name}
               </p>
               <p className="text-gray-600 text-base">
-                Category: {ticket.category}
+                Category: {ticket.category_name}
               </p>
             </div>
             <div>
               <div>
                 <div className="mt-2 bg-red-500 w-48 pl-2 rounded-lg">
                   <h4 className="text-lg font-semibold text-white mb-2">
-                    {new Date(ticket.raised_time).toLocaleString("en-IN", {
+                    {new Date(ticket.created).toLocaleString("en-IN", {
                       year: "numeric",
                       month: "numeric",
                       day: "numeric",
@@ -131,17 +146,17 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
           <div>
             <div className="px-6 bg-gray-100 py-4 flex justify-end">
               <button
-                // className={`bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded ${
-                //   showForm ? "hidden" : ""
-                // }`}
-                // onClick={handleReplyClick}
+                className={`bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded ${
+                  showForm ? "hidden" : ""
+                }`}
+                onClick={handleReplyClick}
               >
                 Reply
               </button>
             </div>
           </div>
           <div>
-            {/* {showForm && (
+            {showForm && (
               <div className="bg-gray-100 shadow-xl rounded-md border my-6 mx-6">
                 <div className="p-6 flex flex-wrap">
                   <div className="mb-4 flex-1 mr-4">
@@ -152,9 +167,9 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                       Ticket Status:
                     </label>
                     <select
-                      id="ticketStatus"
-                      value={ticketStatus}
-                      onChange={(e) => setTicketStatus(e.target.value)}
+                      // id="ticketStatus"
+                      // value={ticketStatus}
+                      // onChange={(e) => setTicketStatus(e.target.value)}
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="Open">Open</option>
@@ -171,10 +186,10 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                       CC List:
                     </label>
                     <input
-                      type="text"
-                      id="ccList"
-                      value={ccList}
-                      onChange={(e) => setCcList(e.target.value)}
+                      // type="text"
+                      // id="ccList"
+                      // value={ccList}
+                      // onChange={(e) => setCcList(e.target.value)}
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -191,10 +206,10 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                       :
                     </label>
                     <input
-                      type="text"
-                      id="solutionTime"
-                      value={solutionTime}
-                      onChange={handleSolutionTimeChange}
+                      // type="text"
+                      // id="solutionTime"
+                      // value={solutionTime}
+                      // onChange={handleSolutionTimeChange}
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -206,9 +221,9 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                       Tag Issue Type:
                     </label>
                     <select
-                      id="department"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
+                      // id="department"
+                      // value={department}
+                      // onChange={(e) => setDepartment(e.target.value)}
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="Support">Support</option>
@@ -226,14 +241,14 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                     </label>
                     <input
                       type="checkbox"
-                      id="approvalRequired"
-                      checked={approvalRequired}
-                      onChange={handleApprovalChange}
+                      // id="approvalRequired"
+                      // checked={approvalRequired}
+                      // onChange={handleApprovalChange}
                       className="mt-1 form-checkbox h-5 w-5 text-indigo-600"
                     />
                   </div>
                   <div className="mb-4 w-full">
-                    <Select
+                    {/* <Select
                       value={selectedOption}
                       onChange={handleOptionChange}
                       isClearable
@@ -262,7 +277,7 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                           },
                         }),
                       }}
-                    />
+                    /> */}
                   </div>
                   <div className="mb-4 w-full">
                     <label
@@ -290,7 +305,7 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                     <input
                       type="file"
                       id="uploadFile"
-                      onChange={handleImageChange}
+                      // onChange={handleImageChange}
                       className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -310,7 +325,7 @@ const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
                   </div>
                 </div>
               </div>
-            )} */}
+            )}
           </div>
         </div>
       </div>
