@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
-const multer = require('multer');
+const multer = require("multer");
 const mysql = require("mysql");
 
 const app = express();
@@ -25,7 +25,6 @@ const db = mysql.createConnection({
 //   database: "testdb",
 // });
 
-
 db.connect((err) => {
   if (err) throw err;
   console.log("Connected to the database.");
@@ -38,21 +37,31 @@ const storage = multer.diskStorage({
     cb(null, uploadDirectory);
   },
   filename: function (req, file, cb) {
-    return cb(null, `${Date.now()}_${file.originalname}`)
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+    const hours = currentDate.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const twelveHourFormat = hours % 12 || 12;
+    const time = `${twelveHourFormat.toString().padStart(2, '0')}-${currentDate.getMinutes().toString().padStart(2, '0')}-${currentDate.getSeconds().toString().padStart(2, '0')} ${ampm}`;
+    const originalFilename = path.parse(file.originalname).name;
+    const ext = path.parse(file.originalname).ext;
+    const filename = `${formattedDate}_${time}_${originalFilename}${ext}`;
+    cb(null, filename);
   }
 });
 
+
 const upload = multer({ storage: storage });
 
-
-app.post('/Uploads', upload.single('file'), (req, res) => {
+app.post("/Uploads", upload.single("file"), (req, res) => {
   if (!req.file) {
-    return res.status(400).send('No file uploaded.');
+    return res.status(400).send("No file uploaded.");
   }
 
   res.send(`File uploaded: ${req.file.filename}`);
 });
-
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
@@ -66,14 +75,8 @@ app.post("/api/login", (req, res) => {
   db.query(sql, [username, password], (err, result) => {
     if (err) throw err;
     if (result.length > 0) {
-      const {
-        user_id,
-        user_name,
-        password,
-        comp_name,
-        location,
-        user_email,
-      } = result[0];
+      const { user_id, user_name, password, comp_name, location, user_email } =
+        result[0];
       res.status(200).json({
         message: "Logged in successfully.",
         user_id,
@@ -145,8 +148,6 @@ app.get("/api/tickets", (req, res) => {
     res.status(200).json(result);
   });
 });
-
-
 
 app.get("/api/employees", (req, res) => {
   const sql = "SELECT user_name FROM its_users";
