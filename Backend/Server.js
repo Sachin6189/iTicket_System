@@ -1,11 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-// const fs = require("fs");
-// const path = require("path");
-// const moment = require("moment-timezone");
+const fs = require("fs");
+const path = require("path");
+const multer = require('multer');
 const mysql = require("mysql");
-const multer = require('multer')
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,22 +31,27 @@ db.connect((err) => {
   console.log("Connected to the database.");
 });
 
-// const storage = multer.diskStorage({
-//   destination: function(req, file, cb) {
-//     return cb(null, "./Uploads")
-//   },
-//   filename: function (req, file, cb) {
-//     return cb(null, `${Date.now()}_${file.originalname}`)
-//   }
-// })
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDirectory = path.join(__dirname, 'Uploads');
+    fs.mkdirSync(uploadDirectory, { recursive: true });
+    cb(null, uploadDirectory);
+  },
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}_${file.originalname}`)
+  }
+});
 
-// const upload = multer({storage})
+const upload = multer({ storage: storage });
 
-// app.post('/Uploads', upload.single('file'), (req, res) => {
-//   console.log(req.body)
-//   console.log(req.file)
-// })
 
+app.post('/Uploads', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  res.send(`File uploaded: ${req.file.filename}`);
+});
 
 
 app.post("/api/login", (req, res) => {

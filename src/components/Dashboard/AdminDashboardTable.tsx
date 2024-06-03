@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import axios from "axios";
+import ReplyTicket from "./ReplyTicket";
 
 const AdminDashboardTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [ticketData, setTicketData] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showReplyTicket, setShowReplyTicket] = useState(false);
+
+
+  const handleIssueClick = (data : any) => {
+    setSelectedTicket(data);
+    setShowReplyTicket(true);
+  };
+
+  const toggleReplyTicket = () => {
+    setShowReplyTicket(!showReplyTicket);
+  };
 
   const fetchTicketData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/tickets");
+      console.log(response.data)
       const sortedData = response.data.slice().sort((a: any, b: any) => {
         const dateA = new Date(a.created.toString());
         const dateB = new Date(b.created.toString());
@@ -92,7 +106,7 @@ const AdminDashboardTable: React.FC = () => {
                     <td className="px-4 py-2">{data.project_name}</td>
                     <td className="px-4 py-2">{data.module_name}</td>
                     <td className="px-4 py-2">{data.category_name}</td>
-                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline">
+                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline" onClick={handleIssueClick}>
                       {data.issue_subject}
                     </td>
                     <td className="px-4 py-2">{data.status}</td>
@@ -139,6 +153,9 @@ const AdminDashboardTable: React.FC = () => {
           Next
         </button>
       </div>
+      {showReplyTicket && (
+        <ReplyTicket ticket={selectedTicket} onClose={toggleReplyTicket} />
+      )}
     </div>
   );
 };
