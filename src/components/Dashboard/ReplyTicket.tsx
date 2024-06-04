@@ -1,5 +1,4 @@
-import React, { useState, useContext } from "react";
-import { LoginContext } from "../../LoginContext";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import close from "../../components/assets/close.gif";
 import downloadImg from "../../components/assets/downloadImg.gif";
@@ -11,9 +10,7 @@ import Select from "react-select";
 
 const ReplyTicket = ({ ticket, onClose } : {ticket: any, onClose:any}) => {
   const [showForm, setShowForm] = useState(false);
-  const { user } = useContext(LoginContext);
 
-  console.log(user);
 
 
   const handleReplyClick = () => {
@@ -81,7 +78,7 @@ const handleSave = () => {
                     className="h-10 w-10 rounded-full"
                   />
                   <span className="text-xl font-semibold text-gray-800 gap-5">
-                    <span className="font-medium"></span>
+                    <span className="font-medium">{ticket.raiser_name} {ticket.created_by}</span>
                   </span>
                 </div>
               </div>
@@ -92,7 +89,7 @@ const handleSave = () => {
                   </h3>
                   <p
                     className="text-gray-600 font-sans"
-                    dangerouslySetInnerHTML={{ __html: ticket.issue_desc}}
+                    dangerouslySetInnerHTML={{ __html: ticket.issueDescText }}
                   ></p>
                 </div>
                 <div className="flex items-center mt-4">
@@ -112,7 +109,7 @@ const handleSave = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-100 p-4 rounded-md shadow-md">
+            <div>
               {/* {issue && issue.approvalData && (
                 <div className="mt-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">

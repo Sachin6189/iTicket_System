@@ -21,7 +21,7 @@ const handlePopUpClose = () => {
   const fetchTicketData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/tickets");
-      // console.log(response.data)
+      console.log(response.data)
       const sortedData = response.data.slice().sort((a: any, b: any) => {
         const dateA = new Date(a.created.toString());
         const dateB = new Date(b.created.toString());
