@@ -12,7 +12,6 @@ const ReplyTicket = ({ ticket, onClose } : {ticket: any, onClose:any}) => {
   const [showForm, setShowForm] = useState(false);
 
 
-
   const handleReplyClick = () => {
     setShowForm(true);
   };
@@ -89,7 +88,7 @@ const handleSave = () => {
                   </h3>
                   <p
                     className="text-gray-600 font-sans"
-                    dangerouslySetInnerHTML={{ __html: ticket.issueDescText }}
+                    dangerouslySetInnerHTML={{ __html: ticket.issue_desc }}
                   ></p>
                 </div>
                 <div className="flex items-center mt-4">
