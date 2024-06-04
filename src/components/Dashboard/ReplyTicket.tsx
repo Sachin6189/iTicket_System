@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext } from "react";
+import { LoginContext } from "../../LoginContext";
 import axios from "axios";
 import close from "../../components/assets/close.gif";
 import downloadImg from "../../components/assets/downloadImg.gif";
@@ -8,8 +9,12 @@ import "react-quill/dist/quill.snow.css";
 import _ from "lodash";
 import Select from "react-select";
 
-const ReplyTicket = ({ticket, onClose} : {ticket: any, onClose:any}) => {
+const ReplyTicket = ({ ticket, onClose } : {ticket: any, onClose:any}) => {
   const [showForm, setShowForm] = useState(false);
+  const { user } = useContext(LoginContext);
+
+  console.log(user);
+
 
   const handleReplyClick = () => {
     setShowForm(true);
@@ -43,13 +48,13 @@ const handleSave = () => {
             <div className="bg-gray-100 rounded-lg p-4 mb-4 shadow-md">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 Issue Title:{" "}
-                <span className="text-gray-600">{ticket.issue_subject}</span>
+               {ticket.issue_subject}
               </h3>
               <p className="text-gray-600 text-base mb-2">
                 Project: {ticket.project_name}
               </p>
               <p className="text-gray-600 text-base mb-2">
-                Module: {ticket.module_name}
+                Module:   {ticket.module_name}
               </p>
               <p className="text-gray-600 text-base">
                 Category: {ticket.category_name}
@@ -82,12 +87,12 @@ const handleSave = () => {
               </div>
               <div className="bg-gray-100 p-4 rounded-md shadow-md">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mt-4 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-800">
                     Description:
                   </h3>
                   <p
                     className="text-gray-600 font-sans"
-                    dangerouslySetInnerHTML={{ __html: ticket.description }}
+                    dangerouslySetInnerHTML={{ __html: ticket.issue_desc}}
                   ></p>
                 </div>
                 <div className="flex items-center mt-4">
