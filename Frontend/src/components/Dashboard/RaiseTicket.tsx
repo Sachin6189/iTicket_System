@@ -15,7 +15,7 @@ interface Option {
 }
 
 const RaiseTicket: React.FC = () => {
-   const base_url = process.env.REACT_BASE_URL;
+  const base_url = process.env.REACT_BASE_URL;
 
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Option | null>(null);
@@ -32,13 +32,10 @@ const RaiseTicket: React.FC = () => {
   const [contactError, setContactError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-
   const navigate = useNavigate();
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name, user_email, location, comp_name } = user;
-
-
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
@@ -53,9 +50,9 @@ const RaiseTicket: React.FC = () => {
       try {
         const response = await axios.get(`${base_url}employees`);
         setEmployees(
-          response.data.map((userName: Option) => ({
-            value: userName,
-            label: userName.value,
+          response.data.map((employee: any) => ({
+            value: employee.user_name,
+            label: employee.user_name,
           }))
         );
       } catch (error) {
@@ -89,7 +86,7 @@ const RaiseTicket: React.FC = () => {
       const response = await axios.post("http://localhost:5000/api/modules", {
         projectName: selectedProject?.value,
       });
-      
+
       setFilteredModules(
         response.data.map((moduleName: any) => ({
           value: moduleName.mod_name,
@@ -223,27 +220,30 @@ const RaiseTicket: React.FC = () => {
     const locnName = location;
     const companyName = comp_name;
 
-    let imageFileName = null ;
+    let imageFileName = null;
 
     if (selectedFile) {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append("file", selectedFile);
 
       try {
-        const response = await axios.post('http://localhost:5000/Uploads', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await axios.post(
+          "http://localhost:5000/Uploads",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         imageFileName = response.data.filename;
 
-        console.log('File uploaded successfully:', response.data);
+        console.log("File uploaded successfully:", response.data);
       } catch (error) {
-        console.error('Error uploading file:', error);
+        console.error("Error uploading file:", error);
       }
     }
-
 
     try {
       const response = await axios.post("http://localhost:5000/submit", {
@@ -262,12 +262,12 @@ const RaiseTicket: React.FC = () => {
         companyName,
         imageFileName,
       });
- 
-      alert("Ticket Raised Successfully, Thank You!")
+
+      alert("Ticket Raised Successfully, Thank You!");
       navigate("/dashboard");
     } catch (error) {
-      alert("Error Submitting Ticket")
-      console.error("Error submitting ticket:", error);  
+      alert("Error Submitting Ticket");
+      console.error("Error submitting ticket:", error);
     }
   };
 
@@ -275,10 +275,8 @@ const RaiseTicket: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-     
     } else {
       setSelectedFile(null);
-  
     }
   };
 
@@ -395,10 +393,10 @@ const RaiseTicket: React.FC = () => {
                   Upload File:
                 </label>
                 <input
-                   type="file"
-                   id="uploadFile"
-                   className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
-                   onChange={handleImage}
+                  type="file"
+                  id="uploadFile"
+                  className="border-gray-300 border bg-white rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:border-blue-500"
+                  onChange={handleImage}
                 />
               </div>
               <div className="flex justify-center mt-1">
@@ -440,4 +438,5 @@ const RaiseTicket: React.FC = () => {
     </div>
   );
 };
+
 export default RaiseTicket;
