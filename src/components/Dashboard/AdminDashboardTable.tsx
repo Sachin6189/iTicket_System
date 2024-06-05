@@ -9,17 +9,14 @@ const AdminDashboardTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [showReplyTicket, setShowReplyTicket] = useState(false);
 
-
-  const handleIssueClick = (data : any) => {
-    setSelectedTicket(data);
-    setShowReplyTicket(true);
+  const handleIssueClick = (ticket: any) => {
+    setSelectedTicket(ticket);
   };
 
-  const toggleReplyTicket = () => {
-    setShowReplyTicket(!showReplyTicket);
-  };
+const handlePopUpClose = () => {
+  setSelectedTicket(null);
+} 
 
   const fetchTicketData = async () => {
     try {
@@ -75,18 +72,18 @@ const AdminDashboardTable: React.FC = () => {
           <table className="w-full table-auto border-collapse border-gray-300">
             <thead className="bg-gray-800 text-white">
               <tr>
-                <th className="px-4 py-2 text-left">Ticket ID</th>
-                <th className="px-4 py-2 text-left">Project</th>
-                <th className="px-4 py-2 text-left">Module</th>
-                <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Issue Title</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Raiser</th>
-                <th className="px-4 py-2 text-left">Location</th>
-                <th className="px-4 py-2 text-left">Contact No.</th>
-                <th className="px-4 py-2 text-left">Approver</th>
-                <th className="px-4 py-2 text-left">Support Person</th>
-                <th className="px-4 py-2 text-left">Raised Time</th>
+                <th className="px-4 py-2 text-left border">Ticket ID</th>
+                <th className="px-4 py-2 text-left border">Project</th>
+                <th className="px-4 py-2 text-left border">Module</th>
+                <th className="px-4 py-2 text-left border">Category</th>
+                <th className="px-4 py-2 text-left border">Issue Title</th>
+                <th className="px-4 py-2 text-left border">Status</th>
+                <th className="px-4 py-2 text-left border">Raiser</th>
+                <th className="px-4 py-2 text-left border">Location</th>
+                <th className="px-4 py-2 text-left border">Contact No.</th>
+                <th className="px-4 py-2 text-left border">Approver</th>
+                <th className="px-4 py-2 text-left border">Support Person</th>
+                <th className="px-4 py-2 text-left border">Raised Time</th>
               </tr>
             </thead>
             <tbody>
@@ -98,24 +95,27 @@ const AdminDashboardTable: React.FC = () => {
                 .map((data, index) => (
                   <tr
                     key={index}
-                    className="odd:bg-white even:bg-gray-100 border-none"
+                    className="odd:bg-white even:bg-gray-100 border"
                   >
                     <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline">
                       {data.ticket_id}
                     </td>
-                    <td className="px-4 py-2">{data.project_name}</td>
-                    <td className="px-4 py-2">{data.module_name}</td>
-                    <td className="px-4 py-2">{data.category_name}</td>
-                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline" onClick={handleIssueClick}>
+                    <td className="px-4 py-2 border">{data.project_name}</td>
+                    <td className="px-4 py-2 border">{data.module_name}</td>
+                    <td className="px-4 py-2 border">{data.category_name}</td>
+                    <td
+                      className="px-4 py-2 cursor-pointer text-blue-500 hover:underline"
+                      onClick={() => handleIssueClick(data)}
+                    >
                       {data.issue_subject}
                     </td>
-                    <td className="px-4 py-2">{data.status}</td>
-                    <td className="px-4 py-2">{data.raiser_name}</td>
-                    <td className="px-4 py-2">{data.locn_name}</td>
-                    <td className="px-4 py-2">{data.contact_no}</td>
-                    <td className="px-4 py-2">{data.approver_name}</td>
-                    <td className="px-4 py-2">{data.asignto_name}</td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 border">{data.status}</td>
+                    <td className="px-4 py-2 border">{data.raiser_name}</td>
+                    <td className="px-4 py-2 border">{data.locn_name}</td>
+                    <td className="px-4 py-2 border">{data.contact_no}</td>
+                    <td className="px-4 py-2 border">{data.approver_name}</td>
+                    <td className="px-4 py-2 border">{data.asignto_name}</td>
+                    <td className="px-4 py-2 border">
                       {new Date(data.created)
                         .toLocaleString("en-IN", {
                           year: "numeric",
@@ -153,9 +153,7 @@ const AdminDashboardTable: React.FC = () => {
           Next
         </button>
       </div>
-      {showReplyTicket && (
-        <ReplyTicket ticket={selectedTicket} onClose={toggleReplyTicket} />
-      )}
+      {selectedTicket ? <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose}  /> : null}
     </div>
   );
 };

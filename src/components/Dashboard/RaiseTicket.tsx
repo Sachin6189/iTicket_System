@@ -26,10 +26,10 @@ const RaiseTicket: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Option | null>(null);
   const [issueTitle, setIssueTitle] = useState("");
   const [description, setDescription] = useState("");
-  // const [imageData, setImageData] = useState("");
   const [projects, setProjects] = useState<Option[]>([]);
   const [contactError, setContactError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
 
   const navigate = useNavigate();
 
@@ -221,6 +221,8 @@ const RaiseTicket: React.FC = () => {
     const locnName = location;
     const companyName = comp_name;
 
+    let imageFileName = null ;
+
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile);
@@ -231,6 +233,9 @@ const RaiseTicket: React.FC = () => {
             'Content-Type': 'multipart/form-data',
           },
         });
+
+        imageFileName = response.data.filename;
+
         console.log('File uploaded successfully:', response.data);
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -253,6 +258,7 @@ const RaiseTicket: React.FC = () => {
         onBehalfName,
         locnName,
         companyName,
+        imageFileName,
       });
  
       alert("Ticket Raised Successfully, Thank You!")
@@ -263,14 +269,14 @@ const RaiseTicket: React.FC = () => {
     }
   };
 
-
-
   const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+     
     } else {
       setSelectedFile(null);
+  
     }
   };
 

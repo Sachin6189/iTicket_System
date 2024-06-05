@@ -32,26 +32,27 @@ db.connect((err) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDirectory = path.join(__dirname, 'Uploads');
+    const uploadDirectory = path.join(__dirname, "Uploads");
     fs.mkdirSync(uploadDirectory, { recursive: true });
     cb(null, uploadDirectory);
   },
   filename: function (req, file, cb) {
     const currentDate = new Date();
-    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+    const formattedDate = `${currentDate.getFullYear()}-${(
+      currentDate.getMonth() + 1
+    )
       .toString()
-      .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+      .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
     const hours = currentDate.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     const twelveHourFormat = hours % 12 || 12;
-    const time = `${twelveHourFormat.toString().padStart(2, '0')}-${currentDate.getMinutes().toString().padStart(2, '0')}-${currentDate.getSeconds().toString().padStart(2, '0')} ${ampm}`;
+    const time = `${twelveHourFormat.toString().padStart(2, "0")}-${currentDate.getMinutes().toString().padStart(2, "0")}-${currentDate.getSeconds().toString().padStart(2, "0")} ${ampm}`;
     const originalFilename = path.parse(file.originalname).name;
     const ext = path.parse(file.originalname).ext;
     const filename = `${formattedDate}_${time}_${originalFilename}${ext}`;
     cb(null, filename);
-  }
+  },
 });
-
 
 const upload = multer({ storage: storage });
 
@@ -60,8 +61,12 @@ app.post("/Uploads", upload.single("file"), (req, res) => {
     return res.status(400).send("No file uploaded.");
   }
 
-  res.send(`File uploaded: ${req.file.filename}`);
+  res.status(200).json({
+    message: `File uploaded successfully: ${req.file.filename}`,
+    filename: req.file.filename,
+  });
 });
+
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
@@ -107,10 +112,11 @@ app.post("/submit", (req, res) => {
     onBehalfName,
     locnName,
     companyName,
+    imageFileName,
   } = req.body;
 
   const sql =
-    "INSERT INTO its_tickets (issuer_id, project_name, module_name, category_name, contact_no, issue_subject, issue_desc, created_by, raiser_name, raiser_email, onbehalf_name, locn_name, company_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO its_tickets (issuer_id, project_name, module_name, category_name, contact_no, issue_subject, issue_desc, created_by, raiser_name, raiser_email, onbehalf_name, locn_name, company_name, filename) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   db.query(
     sql,
@@ -128,6 +134,7 @@ app.post("/submit", (req, res) => {
       onBehalfName,
       locnName,
       companyName,
+      imageFileName,
     ],
     (err, result) => {
       if (err) throw err;
@@ -145,7 +152,15 @@ app.get("/api/tickets", (req, res) => {
       res.status(500).send("Internal server error");
       return;
     }
-    res.status(200).json(result);
+
+    const tickets = result.map((ticket) => {
+      if (ticket.issue_desc) {
+        ticket.issue_desc = ticket.issue_desc.toString("utf8");
+      }
+      return ticket;
+    });
+
+    res.status(200).json(tickets);
   });
 });
 
