@@ -8,22 +8,55 @@ import "react-quill/dist/quill.snow.css";
 import _ from "lodash";
 import Select from "react-select";
 
-const ReplyTicket = ({ ticket, onClose } : {ticket: any, onClose:any}) => {
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Status {
+  status_name: string;
+}
+
+const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const [showForm, setShowForm] = useState(false);
+  const [status, setStatus] = useState<Option[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<Option | null>(null);
+  
 
 
   const handleReplyClick = () => {
     setShowForm(true);
   };
 
-
   const handleCloseForm = () => {
     setShowForm(false);
   };
 
-const handleSave = () => {
-  console.log("something")
-}
+  const handleSave = () => {
+    console.log("something");
+  };
+
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.get<Status[]>(
+        "http://localhost:5000/api/ticket-status"
+      );
+      setStatus(
+        response.data.map((item) => ({
+          value: item.status_name,
+          label: item.status_name,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching status:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, []);
+
+  
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900 bg-opacity-75">
@@ -43,14 +76,13 @@ const handleSave = () => {
           <div className="px-6 py-4">
             <div className="bg-gray-100 rounded-lg p-4 mb-4 shadow-md">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                Issue Title:{" "}
-               {ticket.issue_subject}
+                Issue Title: {ticket.issue_subject}
               </h3>
               <p className="text-gray-600 text-base mb-2">
                 Project: {ticket.project_name}
               </p>
               <p className="text-gray-600 text-base mb-2">
-                Module:   {ticket.module_name}
+                Module: {ticket.module_name}
               </p>
               <p className="text-gray-600 text-base">
                 Category: {ticket.category_name}
@@ -77,7 +109,9 @@ const handleSave = () => {
                     className="h-10 w-10 rounded-full"
                   />
                   <span className="text-xl font-semibold text-gray-800 gap-5">
-                    <span className="font-medium">{ticket.raiser_name} {ticket.created_by}</span>
+                    <span className="font-medium">
+                      {ticket.raiser_name} {ticket.created_by}
+                    </span>
                   </span>
                 </div>
               </div>
@@ -160,24 +194,21 @@ const handleSave = () => {
             {showForm && (
               <div className="bg-gray-100 shadow-xl rounded-md border my-6 mx-6">
                 <div className="p-6 flex flex-wrap">
-                  <div className="mb-4 flex-1 mr-4">
+                  <div className="mb-4 flex-1 mr-4 mt-1">
                     <label
                       htmlFor="ticketStatus"
                       className="flex text-sm font-medium text-gray-700"
                     >
                       Ticket Status:
                     </label>
-                    <select
-                      // id="ticketStatus"
-                      // value={ticketStatus}
-                      // onChange={(e) => setTicketStatus(e.target.value)}
-                      className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                      <option value="Open">Open</option>
-                      <option value="Closed">Closed</option>
-                      <option value="Rejected">Rejected</option>
-                      <option value="Re-Opened">Re-Opened</option>
-                    </select>
+                    <Select
+                      value={selectedStatus}
+                      onChange={(option: Option | null) =>
+                        setSelectedStatus(option)
+                      }
+                      options={status}
+                      placeholder="Select ticket status"
+                    />
                   </div>
                   <div className="mb-4 flex-1">
                     <label
@@ -242,21 +273,21 @@ const handleSave = () => {
                     </label>
                     <input
                       type="checkbox"
-                      // id="approvalRequired"
+                      id="approvalRequired"
                       // checked={approvalRequired}
                       // onChange={handleApprovalChange}
                       className="mt-1 form-checkbox h-5 w-5 text-indigo-600"
                     />
                   </div>
                   <div className="mb-4 w-full">
-                    {/* <Select
-                      value={selectedOption}
-                      onChange={handleOptionChange}
+                    <Select
+                      // value={selectedOption}
+                      // onChange={handleOptionChange}
                       isClearable
                       isSearchable
-                      isDisabled={!approvalRequired}
+                      // isDisabled={!approvalRequired}
                       placeholder="...Select Employee Name..."
-                      options={employees}
+                      // options={employees}
                       styles={{
                         control: (provided) => ({
                           ...provided,
@@ -278,7 +309,7 @@ const handleSave = () => {
                           },
                         }),
                       }}
-                    /> */}
+                    />
                   </div>
                   <div className="mb-4 w-full">
                     <label
@@ -331,7 +362,7 @@ const handleSave = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ReplyTicket
+export default ReplyTicket;

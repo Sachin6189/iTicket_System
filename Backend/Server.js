@@ -165,7 +165,7 @@ app.get("/api/tickets", (req, res) => {
 });
 
 app.get("/api/employees", (req, res) => {
-  const sql = "SELECT user_name FROM its_users";
+  const sql = "SELECT * FROM its_users";
 
   db.query(sql, (err, result) => {
     if (err) {
@@ -173,8 +173,8 @@ app.get("/api/employees", (req, res) => {
       res.status(500).send("Internal server error");
       return;
     }
-    const userName = result.map((row) => row.user_name);
-    res.status(200).json(userName);
+    // const userName = result.map((row) => row.user_name);
+    res.status(200).json(result);
   });
 });
 
@@ -228,6 +228,22 @@ app.post("/api/categories", (req, res) => {
     res.status(200).json(result);
   });
 });
+
+
+app.get("/api/ticket-status", (req, res) => {
+  const sql = "SELECT * FROM its_status"
+  
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+    res.status(200).json(result);
+    // console.log(result)
+  })
+});
+
 
 const PORT = process.env.PORT || 5000;
 
