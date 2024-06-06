@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-200 border-t border-gray-300 flex justify-between items-center px-4 py-2">
+    <div className=" left-0 w-full bg-gray-200 border-t border-gray-300 flex justify-between items-center px-4 py-2">
       <div className="text-sm">
         <div className="font-[fangsong]">
           Copyright &copy; 2024{" "}
