@@ -244,6 +244,20 @@ app.get("/api/ticket-status", (req, res) => {
   })
 });
 
+app.get("/api/issue-tags", (req, res) => {
+  const sql = "SELECT tag_name FROM its_tags";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
 
 const PORT = process.env.PORT || 5000;
 
