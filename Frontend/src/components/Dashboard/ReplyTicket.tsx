@@ -13,6 +13,10 @@ interface Option {
   label: string;
 }
 
+interface IssueTag {
+  tag_name: string;
+}
+
 interface Status {
   status_name: string;
 }
@@ -21,8 +25,7 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const [showForm, setShowForm] = useState(false);
   const [status, setStatus] = useState<Option[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<Option | null>(null);
-  
-
+  const [issueTags, setIssueTags] = useState<string[]>([]);
 
   const handleReplyClick = () => {
     setShowForm(true);
@@ -56,7 +59,19 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
     fetchStatus();
   }, []);
 
-  
+  const fetchIssueTags = async () => {
+    try {
+      const response = await axios.get<IssueTag[]>("http://localhost:5000/api/issue-tags");
+      const tags = response.data.map((tag) => tag.tag_name);
+      setIssueTags(tags);
+    } catch (error) {
+      console.error("Error fetching issue tags:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchIssueTags();
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900 bg-opacity-75">
@@ -252,17 +267,14 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                     >
                       Tag Issue Type:
                     </label>
-                    <select
-                      // id="department"
-                      // value={department}
-                      // onChange={(e) => setDepartment(e.target.value)}
-                      className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                      <option value="Support">Support</option>
-                      <option value="Bug">Bug</option>
-                      <option value="Data Dump">Data Dump</option>
-                      <option value="User Doubt">User Doubt</option>
-                    </select>
+                    <select id="issueType" className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <option value="">Select Issue Type</option>
+              {issueTags.map((tag) => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              ))}
+            </select>
                   </div>
                   <div className="mb-4 w-full flex items-center">
                     <label
