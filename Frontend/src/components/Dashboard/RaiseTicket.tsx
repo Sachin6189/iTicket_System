@@ -15,7 +15,7 @@ interface Option {
 }
 
 const RaiseTicket: React.FC = () => {
-  const base_url = process.env.REACT_BASE_URL;
+  // const base_url = process.env.REACT_BASE_URL;
 
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Option | null>(null);
@@ -48,7 +48,7 @@ const RaiseTicket: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get(`${base_url}employees`);
+        const response = await axios.get("http://localhost:5000/api/employees");
         setEmployees(
           response.data.map((employee: any) => ({
             value: employee.user_name,

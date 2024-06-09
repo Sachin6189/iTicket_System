@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import axios from "axios";
 import ReplyTicket from "./ReplyTicket";
+import claim from "../assets/select.png";
+import Teams from "../assets/teams.png"
+
 
 const AdminDashboardTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +51,8 @@ const handlePopUpClose = () => {
           data.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           data.issue_subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
           data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.locn_name.toLowerCase().includes(searchTerm.toLowerCase())
+          data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          data.status.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
     setCurrentPage(1);
@@ -56,7 +60,7 @@ const handlePopUpClose = () => {
 
   return (
     <div className="container max-w-full px-4 py-8">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end">
         <input
           type="text"
           placeholder="Search..."
@@ -83,7 +87,11 @@ const handlePopUpClose = () => {
                 <th className="px-4 py-2 text-left border">Contact No.</th>
                 <th className="px-4 py-2 text-left border">Approver</th>
                 <th className="px-4 py-2 text-left border">Support Person</th>
+                <th className="px-4 py-2 text-left border">Elapsed Time</th>
                 <th className="px-4 py-2 text-left border">Raised Time</th>
+                <th className="px-4 py-2 text-left border">Solution Time</th>
+                <th className="px-4 py-2 text-left border">Consumed Time</th>
+                <th className="px-4 py-2 text-left border">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -127,6 +135,49 @@ const handlePopUpClose = () => {
                         })
                         .replace(/\bam\b/g, "AM")
                         .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                       <img className=" h-8 w-8" src={claim} alt="claim" /> 
+                       <img className="h-8 w-8" src={Teams} alt="teams" />
                     </td>
                   </tr>
                 ))}
