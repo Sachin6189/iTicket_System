@@ -4,7 +4,7 @@ import openTicket from "../assets/open_tickets.gif";
 import ticketsPending from "../assets/pending.gif";
 import unclaimedTicket from "../assets/unclaimed.gif";
 import ticketsResolved from "../assets/resolved.gif";
-import raiseAccess from "../assets/access_raise.gif";
+import accessRaise from "../assets/access_raise.gif";
 import approval from "../assets/approve.gif";
 import arrow from "../assets/arrow-right.png";
 import AdminDashboardTable from "./AdminDashboardTable";
@@ -18,6 +18,10 @@ const AdminMain: React.FC = () => {
   const raiseTicket = () => {
     navigate("/dashboard/raiseTicket");
   };
+
+const raiseAccess = () => {
+  navigate("/dashboard/raiseAccess");
+}
 
   const NoOfTicketsRaised = 0;
   const openTicketsCount = 0;
@@ -37,7 +41,9 @@ const AdminMain: React.FC = () => {
           Raise New Ticket
         </button>
 
-        <button className="bg-gray-800 hover:bg-gray-950 text-[#47c8c3] font-bold font-[fangsong] py-2 px-4 rounded">
+        <button className="bg-gray-800 hover:bg-gray-950 text-[#47c8c3] font-bold font-[fangsong] py-2 px-4 rounded"
+        onClick={raiseAccess}
+        >
           Raise Access Request
         </button>
       </div>
@@ -111,7 +117,7 @@ const AdminMain: React.FC = () => {
 
         <div className="flex flex-row items-center bg-gray-200 text-sm p-4 w-full md:w-64 h-24 border-l-8 border-pink-500 rounded-lg font-semibold text-pink-500 font-[fangsong]">
           <div className="w-1/4">
-            <img src={raiseAccess} alt="" />
+            <img src={accessRaise} alt="" />
           </div>
           <div className="pl-2">
             <div>Raise Access Request</div>

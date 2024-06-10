@@ -42,20 +42,25 @@ const handlePopUpClose = () => {
   }, []);
 
   const debouncedFilterData = _.debounce((searchTerm) => {
-    // console.log(searchTerm);
-    setTicketData(
-      ticketData.filter(
-        (data: any) =>
-          data.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.issue_subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          data.status.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    setCurrentPage(1);
+    if (searchTerm.trim() === '') {
+      // Reset ticketData to the original data when search term is empty
+      fetchTicketData();
+      setCurrentPage(1);
+    } else {
+      setTicketData(
+        ticketData.filter(
+          (data: any) =>
+            data.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.issue_subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.status.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+      setCurrentPage(1);
+    }
   }, 500);
 
   return (
@@ -105,7 +110,9 @@ const handlePopUpClose = () => {
                     key={index}
                     className="odd:bg-white even:bg-gray-100 border"
                   >
-                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline">
+                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline" 
+                    onClick={() => handleIssueClick(data)}
+                    >
                       {data.ticket_id}
                     </td>
                     <td className="px-4 py-2 border">{data.project_name}</td>
@@ -176,9 +183,9 @@ const handlePopUpClose = () => {
                         .replace(/\bpm\b/g, "PM")}
                     </td>
                     <td className="px-4 py-2 border">
-                       <img className=" h-8 w-8" src={claim} alt="claim" /> 
-                       <img className="h-8 w-8" src={Teams} alt="teams" />
-                    </td>
+                       <img  className="h-8 w-8" src={claim} alt="claim" title="Claim Ticket" /> 
+                       {/* <img className="h-8 w-8" src={Teams} alt="teams" /> */}
+                    </td> 
                   </tr>
                 ))}
             </tbody>
