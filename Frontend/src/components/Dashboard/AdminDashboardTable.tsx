@@ -183,9 +183,9 @@ const handlePopUpClose = () => {
                         .replace(/\bpm\b/g, "PM")}
                     </td>
                     <td className="px-4 py-2 border">
-                       <img className=" h-8 w-8" src={claim} alt="claim" /> 
-                       <img className="h-8 w-8" src={Teams} alt="teams" />
-                    </td>
+                       <img  className="h-8 w-8" src={claim} alt="claim" title="Claim Ticket" /> 
+                       {/* <img className="h-8 w-8" src={Teams} alt="teams" /> */}
+                    </td> 
                   </tr>
                 ))}
             </tbody>
