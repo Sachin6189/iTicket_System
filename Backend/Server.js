@@ -11,19 +11,19 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const db = mysql.createConnection({
-  host: "172.27.129.80",
-  user: "share_user",
-  password: "share_user",
-  database: "testdb",
-});
-
 // const db = mysql.createConnection({
-//   host: "127.0.0.1",
-//   user: "root",
-//   password: "",
+//   host: "172.27.129.80",
+//   user: "share_user",
+//   password: "share_user",
 //   database: "testdb",
 // });
+
+const db = mysql.createConnection({
+  host: "127.0.0.1",
+  user: "root",
+  password: "",
+  database: "testdb",
+});
 
 db.connect((err) => {
   if (err) throw err;
