@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import close from "../../components/assets/close.gif";
 import downloadImg from "../../components/assets/downloadImg.gif";
@@ -7,6 +7,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import _ from "lodash";
 import Select from "react-select";
+import { LoginContext } from "../../LoginContext";
 
 interface Option {
   value: string;
@@ -21,11 +22,25 @@ interface Status {
   status_name: string;
 }
 
+interface Employee {
+  value: string;
+  label: string;
+}
+
 const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const [showForm, setShowForm] = useState(false);
   const [status, setStatus] = useState<Option[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<Option | null>(null);
   const [issueTags, setIssueTags] = useState<string[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const [approvalRequired, setApprovalRequired] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const { user } = useContext(LoginContext);
+  const { user_id, user_name } = user;
 
   const handleReplyClick = () => {
     setShowForm(true);
@@ -35,8 +50,8 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
     setShowForm(false);
   };
 
-  const handleSave = () => {
-    console.log("something");
+  const handleEmployeeChange = (option: Employee | null) => {
+    setSelectedEmployee(option);
   };
 
   const fetchStatus = async () => {
@@ -61,7 +76,9 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
 
   const fetchIssueTags = async () => {
     try {
-      const response = await axios.get<IssueTag[]>("http://localhost:5000/api/issue-tags");
+      const response = await axios.get<IssueTag[]>(
+        "http://localhost:5000/api/issue-tags"
+      );
       const tags = response.data.map((tag) => tag.tag_name);
       setIssueTags(tags);
     } catch (error) {
@@ -72,6 +89,32 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   useEffect(() => {
     fetchIssueTags();
   }, []);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get<any[]>(
+          "http://localhost:5000/api/employees"
+        );
+        const employees = response.data.map((employee) => ({
+          value: employee.user_id,
+          label: employee.user_name,
+        }));
+        setEmployees(employees);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  const handleApprovalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setApprovalRequired(event.target.checked);
+    if (!event.target.checked) {
+      setSelectedOption(null);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900 bg-opacity-75">
@@ -157,42 +200,8 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                 </div>
               </div>
             </div>
-            <div>
-              {/* {issue && issue.approvalData && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    Approval Details:
-                  </h3>
-                  <p className="text-gray-600 mb-2">
-                    Approver ID: {approver_id}
-                  </p>
-                  <p className="text-gray-600 mb-2">
-                    Remarks:{" "}
-                    <div
-                      className="text-gray-600 mb-2"
-                      dangerouslySetInnerHTML={{ __html: remarks }}
-                    ></div>
-                  </p>
-                  <p className="text-gray-600 mb-2">
-                    Approval Status: {approval_status}
-                  </p>
-                  <p className="text-gray-600">
-                    Approval Time:{" "}
-                    {approval_time &&
-                      new Date(approval_time).toLocaleString("en-IN", {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                  </p>
-                </div>
-              )} */}
-            </div>
+            <div></div>
           </div>
-
           <div>
             <div className="px-6 bg-gray-100 py-4 flex justify-end">
               <button
@@ -267,14 +276,17 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                     >
                       Tag Issue Type:
                     </label>
-                    <select id="issueType" className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              <option value="">Select Issue Type</option>
-              {issueTags.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
+                    <select
+                      id="issueType"
+                      className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    >
+                      <option value="">Select Issue Type</option>
+                      {issueTags.map((tag) => (
+                        <option key={tag} value={tag}>
+                          {tag}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="mb-4 w-full flex items-center">
                     <label
@@ -286,43 +298,46 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                     <input
                       type="checkbox"
                       id="approvalRequired"
-                      // checked={approvalRequired}
-                      // onChange={handleApprovalChange}
+                      checked={approvalRequired}
+                      onChange={handleApprovalChange}
                       className="mt-1 form-checkbox h-5 w-5 text-indigo-600"
                     />
                   </div>
-                  <div className="mb-4 w-full">
-                    <Select
-                      // value={selectedOption}
-                      // onChange={handleOptionChange}
-                      isClearable
-                      isSearchable
-                      // isDisabled={!approvalRequired}
-                      placeholder="...Select Employee Name..."
-                      // options={employees}
-                      styles={{
-                        control: (provided) => ({
-                          ...provided,
-                          border: "1px solid #e5e7eb",
-                          boxShadow: "none",
-                          "&:hover": {
-                            border: "1px solid #a0aec0",
-                          },
-                        }),
-                        option: (provided, state) => ({
-                          ...provided,
-                          backgroundColor: state.isSelected
-                            ? "#6366f1"
-                            : "white",
-                          color: state.isSelected ? "white" : "#4b5563",
-                          "&:hover": {
-                            backgroundColor: "#e0e7ff",
-                            color: "#1e293b",
-                          },
-                        }),
-                      }}
-                    />
-                  </div>
+
+                  {approvalRequired && (
+                    <div className="mb-4 w-full">
+                      <Select
+                        value={selectedEmployee}
+                        onChange={handleEmployeeChange}
+                        isClearable
+                        isSearchable
+                        placeholder="...Select Employee Name..."
+                        options={employees}
+                        styles={{
+                          control: (provided) => ({
+                            ...provided,
+                            border: "1px solid #e5e7eb",
+                            boxShadow: "none",
+                            "&:hover": {
+                              border: "1px solid #a0aec0",
+                            },
+                          }),
+                          option: (provided, state) => ({
+                            ...provided,
+                            backgroundColor: state.isSelected
+                              ? "#6366f1"
+                              : "white",
+                            color: state.isSelected ? "white" : "#4b5563",
+                            "&:hover": {
+                              backgroundColor: "#e0e7ff",
+                              color: "#1e293b",
+                            },
+                          }),
+                        }}
+                      />
+                    </div>
+                  )}
+
                   <div className="mb-4 w-full">
                     <label
                       htmlFor="description"
@@ -356,7 +371,7 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                   <div className="flex justify-between w-full">
                     <button
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md"
-                      onClick={handleSave}
+                      // onClick={handleSave}
                     >
                       Save
                     </button>
@@ -376,5 +391,4 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
     </div>
   );
 };
-
 export default ReplyTicket;

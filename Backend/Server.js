@@ -30,6 +30,8 @@ db.connect((err) => {
   console.log("Connected to the database.");
 });
 
+//Image upload for raise ticket.
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDirectory = path.join(__dirname, "Uploads");
@@ -46,7 +48,13 @@ const storage = multer.diskStorage({
     const hours = currentDate.getHours();
     const ampm = hours >= 12 ? "PM" : "AM";
     const twelveHourFormat = hours % 12 || 12;
-    const time = `${twelveHourFormat.toString().padStart(2, "0")}-${currentDate.getMinutes().toString().padStart(2, "0")}-${currentDate.getSeconds().toString().padStart(2, "0")} ${ampm}`;
+    const time = `${twelveHourFormat.toString().padStart(2, "0")}-${currentDate
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}-${currentDate
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")} ${ampm}`;
     const originalFilename = path.parse(file.originalname).name;
     const ext = path.parse(file.originalname).ext;
     const filename = `${formattedDate}_${time}_${originalFilename}${ext}`;
@@ -67,6 +75,46 @@ app.post("/Uploads", upload.single("file"), (req, res) => {
   });
 });
 
+app.post("/api/solutions", (req, res) => {
+  const {
+    ticket_id,
+    solution_by_id,
+    solution_by_name,
+    status,
+    issue_tag_type,
+    solution_time,
+    sol_desc,
+  } = req.body;
+
+  // const image_filename = req.file ? req.file.filename : null;
+
+  const sql = `
+    INSERT INTO its_solution 
+    (ticket_id, solution_by_id, status, issue_tag_type, solution_time, sol_desc, solution_by_name) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    sql,
+    [
+      ticket_id,
+      solution_by_id,
+      status,
+      issue_tag_type,
+      solution_time,
+      sol_desc,
+      solution_by_name,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error saving solution:", err);
+        res.status(500).send("Error saving solution");
+        return;
+      }
+      res.status(200).json({ message: "Solution saved successfully" });
+    }
+  );
+});
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
@@ -229,10 +277,9 @@ app.post("/api/categories", (req, res) => {
   });
 });
 
-
 app.get("/api/ticket-status", (req, res) => {
-  const sql = "SELECT * FROM its_status"
-  
+  const sql = "SELECT * FROM its_status";
+
   db.query(sql, (err, result) => {
     if (err) {
       console.error("Error executing query:", err);
@@ -241,7 +288,7 @@ app.get("/api/ticket-status", (req, res) => {
     }
     res.status(200).json(result);
     // console.log(result)
-  })
+  });
 });
 
 app.get("/api/issue-tags", (req, res) => {
@@ -257,7 +304,6 @@ app.get("/api/issue-tags", (req, res) => {
     res.status(200).json(result);
   });
 });
-
 
 const PORT = process.env.PORT || 5000;
 
