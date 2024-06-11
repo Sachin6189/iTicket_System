@@ -36,14 +36,21 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
-  const [approvalRequired, setApprovalRequired] = useState(false);
   const [selectedApprover, setSelectedApprover] = useState(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [solutionDescription, setSolutionDescription] = useState("");
   const [solutionTime, setSolutionTime] = useState("");
+  const [approvalRequired, setApprovalRequired] = useState<boolean>(false);
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name } = user;
+
+  const handleApprovalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setApprovalRequired(event.target.checked);
+    if (!event.target.checked) {
+      setSelectedApprover(null);
+    }
+  };
 
   const handleReplyClick = () => {
     setShowForm(true);
@@ -66,6 +73,9 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const handleTagSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTag(event.target.value);
   };
+
+
+  
 
   const fetchStatus = async () => {
     try {
@@ -109,6 +119,7 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
         const response = await axios.get<any[]>(
           "http://localhost:5000/api/employees"
         );
+        console.log(response.data);
         const employees = response.data.map((employee) => ({
           value: employee.user_id,
           label: employee.user_name,
@@ -122,23 +133,39 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
     fetchEmployees();
   }, []);
 
-  const handleApprovalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setApprovalRequired(event.target.checked);
-    if (!event.target.checked) {
-      setSelectedApprover(null);
+ 
+
+  const handleUpdateApprover = async () => {
+    try {
+      const ticketId = ticket.ticket_id;
+      const approverName = selectedEmployee?.label || '';
+      const approverId = selectedEmployee?.value || '';
+      const approvalRequiredNum = approvalRequired ? 1 : 0; 
+  
+      const response = await axios.post('http://localhost:5000/api/update-approver', {
+        ticketId,
+        approverName,
+        approverId,
+        approvalRequiredNum, 
+      });
+  
+      console.log(response.data.message);
+      alert('Approver updated successfully');
+    } catch (error) {
+      console.error('Error updating approver:', error);
+      alert('Error updating approver');
     }
   };
-
+  
   const handleSave = async () => {
     try {
-     
       const data = {
         ticket_id: ticket.ticket_id,
         solution_by_id: user_id,
         solution_by_name: user_name,
         status: selectedStatus?.value || "",
         issue_tag_type: selectedTag || "",
-        solution_time: solutionTime || 0,
+        consume_time: solutionTime || 0,
         sol_desc: solutionDescription,
       };
   
@@ -163,6 +190,8 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   
         console.log(response.data.message);
         alert("Ticket updated successfully");
+
+        await handleUpdateApprover();
         handleCloseForm();
       } catch (error) {
         console.error('Error updating ticket:', error);

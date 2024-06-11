@@ -4,6 +4,7 @@ import Dashboard from "../components/Dashboard/Dashboard";
 import { Route, Routes } from "react-router-dom";
 import RaiseTicket from "../components/Dashboard/RaiseTicket";
 import RaiseAccessRequest from "../components/Dashboard/RaiseAccessRequest"
+import ApproverPopUp from "../components/Dashboard/ApproverPopUp";
 
 // import ProtectedRoute from "../ProtectedRoute";
 
@@ -15,6 +16,7 @@ const App = () => {
       <Route path="/dashboard/raiseTicket" element={<RaiseTicket />} />
       <Route path="/dashboard/raiseAccess" element={<RaiseAccessRequest/>} />
     </Routes>
+    // <ApproverPopUp/>
   );
 };
 export default App;
