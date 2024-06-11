@@ -37,7 +37,10 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
     null
   );
   const [approvalRequired, setApprovalRequired] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedApprover, setSelectedApprover] = useState(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [solutionDescription, setSolutionDescription] = useState("");
+  const [solutionTime, setSolutionTime] = useState("");
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name } = user;
@@ -52,6 +55,16 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
 
   const handleEmployeeChange = (option: Employee | null) => {
     setSelectedEmployee(option);
+  };
+
+  const handleSolutionTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSolutionTime(event.target.value);
+  };
+
+  const handleTagSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTag(event.target.value);
   };
 
   const fetchStatus = async () => {
@@ -112,9 +125,80 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
   const handleApprovalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setApprovalRequired(event.target.checked);
     if (!event.target.checked) {
-      setSelectedOption(null);
+      setSelectedApprover(null);
     }
   };
+
+  const handleSave = async () => {
+    try {
+     
+      const data = {
+        ticket_id: ticket.ticket_id,
+        solution_by_id: user_id,
+        solution_by_name: user_name,
+        status: selectedStatus?.value || "",
+        issue_tag_type: selectedTag || "",
+        solution_time: solutionTime || 0,
+        sol_desc: solutionDescription,
+      };
+  
+      const response = await axios.post(
+        "http://localhost:5000/api/solutions",
+        data
+      );
+      console.log(response.data);
+      alert("Data sent successfully");
+  
+      
+      try {
+        const ticketId = ticket.ticket_id;
+        const status = selectedStatus?.value || "";
+        const assignToName = user_name;
+  
+        const response = await axios.post("http://localhost:5000/api/update-ticket", {
+          ticketId,
+          status,
+          assignToName,
+        });
+  
+        console.log(response.data.message);
+        alert("Ticket updated successfully");
+        handleCloseForm();
+      } catch (error) {
+        console.error('Error updating ticket:', error);
+        alert("Error Updating ticket");
+      }
+    } catch (error) {
+      console.error('Error saving solution:', error);
+      alert("Error Saving Data");
+    }
+  };
+
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link", "image"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "link",
+    "image",
+  ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900 bg-opacity-75">
@@ -262,10 +346,10 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                       :
                     </label>
                     <input
-                      // type="text"
-                      // id="solutionTime"
-                      // value={solutionTime}
-                      // onChange={handleSolutionTimeChange}
+                      type="text"
+                      id="solutionTime"
+                      value={solutionTime}
+                      onChange={handleSolutionTimeChange}
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -279,6 +363,8 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                     <select
                       id="issueType"
                       className="mt-1 flex w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={selectedTag || ""}
+                      onChange={handleTagSelection}
                     >
                       <option value="">Select Issue Type</option>
                       {issueTags.map((tag) => (
@@ -346,10 +432,10 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                       Solution<span className="text-red-500">*</span>:
                     </label>
                     <ReactQuill
-                      // value={description}
-                      // onChange={setDescription}
-                      // modules={modules}
-                      // formats={formats}
+                      value={solutionDescription}
+                      onChange={setSolutionDescription}
+                      modules={modules}
+                      formats={formats}
                       className="bg-white"
                     />
                   </div>
@@ -371,7 +457,7 @@ const ReplyTicket = ({ ticket, onClose }: { ticket: any; onClose: any }) => {
                   <div className="flex justify-between w-full">
                     <button
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md"
-                      // onClick={handleSave}
+                      onClick={handleSave}
                     >
                       Save
                     </button>

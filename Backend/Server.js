@@ -11,19 +11,19 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// const db = mysql.createConnection({
-//   host: "172.27.129.80",
-//   user: "share_user",
-//   password: "share_user",
-//   database: "testdb",
-// });
-
 const db = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "",
+  host: "172.27.129.80",
+  user: "share_user",
+  password: "share_user",
   database: "testdb",
 });
+
+// const db = mysql.createConnection({
+//   host: "127.0.0.1",
+//   user: "root",
+//   password: "",
+//   database: "testdb",
+// });
 
 db.connect((err) => {
   if (err) throw err;
@@ -75,7 +75,7 @@ app.post("/Uploads", upload.single("file"), (req, res) => {
   });
 });
 
-app.post("/api/solutions", (req, res) => {
+app.post('/api/solutions', (req, res) => {
   const {
     ticket_id,
     solution_by_id,
@@ -86,11 +86,9 @@ app.post("/api/solutions", (req, res) => {
     sol_desc,
   } = req.body;
 
-  // const image_filename = req.file ? req.file.filename : null;
-
   const sql = `
-    INSERT INTO its_solution 
-    (ticket_id, solution_by_id, status, issue_tag_type, solution_time, sol_desc, solution_by_name) 
+    INSERT INTO its_solution
+    (ticket_id, solution_by_id, solution_by_name, status, issue_tag_type, solution_time, sol_desc)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -99,19 +97,20 @@ app.post("/api/solutions", (req, res) => {
     [
       ticket_id,
       solution_by_id,
+      solution_by_name,
       status,
       issue_tag_type,
       solution_time,
       sol_desc,
-      solution_by_name,
+     
     ],
     (err, result) => {
       if (err) {
-        console.error("Error saving solution:", err);
-        res.status(500).send("Error saving solution");
+        console.error('Error saving solution:', err);
+        res.status(500).send('Error saving solution');
         return;
       }
-      res.status(200).json({ message: "Solution saved successfully" });
+      res.status(200).json({ message: 'Solution saved successfully' });
     }
   );
 });
@@ -189,6 +188,58 @@ app.post("/submit", (req, res) => {
       res.status(200).send("Data sent successfully!");
     }
   );
+});
+
+app.post('/api/update-ticket', (req, res) => {
+  console.log(req.body);
+  const { ticketId, status, assignToName } = req.body;
+
+  const sql = `
+    UPDATE its_tickets
+    SET status = ?, solution_at = NOW(), asignto_name = ?
+    WHERE ticket_id = ?
+  `;
+
+  db.query(sql, [status, assignToName, ticketId], (err, result) => {
+    if (err) {
+      console.error('Error updating ticket:', err);
+      res.status(500).send('Error updating ticket');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Ticket not found');
+      return;
+    }
+
+    res.status(200).json({ message: 'Ticket updated successfully' });
+  });
+});
+
+app.post('/api/claim-ticket', (req, res) => {
+  const { ticketId } = req.body;
+  const assignToName = req.body.assignToName || 'Unassigned'; 
+
+  const sql = `
+    UPDATE its_tickets
+    SET asignto_name = ?
+    WHERE ticket_id = ?
+  `;
+
+  db.query(sql, [assignToName, ticketId], (err, result) => {
+    if (err) {
+      console.error('Error updating ticket:', err);
+      res.status(500).send('Error updating ticket');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Ticket not found');
+      return;
+    }
+
+    res.status(200).json({ message: 'Ticket claimed successfully' });
+  });
 });
 
 app.get("/api/tickets", (req, res) => {

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import _ from "lodash";
 import axios from "axios";
 import ReplyTicket from "./ReplyTicket";
 import claim from "../assets/select.png";
-import Teams from "../assets/teams.png"
-
+import Teams from "../assets/teams.png";
+import { LoginContext } from "../../LoginContext";
 
 const AdminDashboardTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,18 +13,21 @@ const AdminDashboardTable: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
 
+  const { user } = useContext(LoginContext);
+  const { user_id, user_name } = user;
+
   const handleIssueClick = (ticket: any) => {
     setSelectedTicket(ticket);
   };
 
-const handlePopUpClose = () => {
-  setSelectedTicket(null);
-} 
+  const handlePopUpClose = () => {
+    setSelectedTicket(null);
+  };
 
   const fetchTicketData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/tickets");
-      console.log(response.data)
+      console.log(response.data);
       const sortedData = response.data.slice().sort((a: any, b: any) => {
         const dateA = new Date(a.created.toString());
         const dateB = new Date(b.created.toString());
@@ -41,8 +44,21 @@ const handlePopUpClose = () => {
     fetchTicketData();
   }, []);
 
+  const handleClaimTicket = async (ticketId: string) => {
+    try {
+      await axios.post("http://localhost:5000/api/claim-ticket", {
+        ticketId,
+        assignToName: user_name,
+      });
+      alert("Ticket Claimed")
+      fetchTicketData();
+    } catch (error) {
+      console.error("Error claiming ticket:", error);
+    }
+  };
+
   const debouncedFilterData = _.debounce((searchTerm) => {
-    if (searchTerm.trim() === '') {
+    if (searchTerm.trim() === "") {
       // Reset ticketData to the original data when search term is empty
       fetchTicketData();
       setCurrentPage(1);
@@ -50,10 +66,16 @@ const handlePopUpClose = () => {
       setTicketData(
         ticketData.filter(
           (data: any) =>
-            data.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.project_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
             data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data.issue_subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.category_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            data.issue_subject
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
             data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
             data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             data.status.toLowerCase().includes(searchTerm.toLowerCase())
@@ -64,7 +86,7 @@ const handlePopUpClose = () => {
   }, 500);
 
   return (
-    <div className="container max-w-full px-4 py-8">
+    <div className="max-w-full px-4 py-8">
       <div className="flex justify-end">
         <input
           type="text"
@@ -110,8 +132,9 @@ const handlePopUpClose = () => {
                     key={index}
                     className="odd:bg-white even:bg-gray-100 border"
                   >
-                    <td className="px-4 py-2 cursor-pointer text-blue-500 hover:underline" 
-                    onClick={() => handleIssueClick(data)}
+                    <td
+                      className="px-4 py-2 cursor-pointer text-blue-500 hover:underline"
+                      onClick={() => handleIssueClick(data)}
                     >
                       {data.ticket_id}
                     </td>
@@ -183,9 +206,14 @@ const handlePopUpClose = () => {
                         .replace(/\bpm\b/g, "PM")}
                     </td>
                     <td className="px-4 py-2 border">
-                       <img  className="h-8 w-8" src={claim} alt="claim" title="Claim Ticket" /> 
-                       {/* <img className="h-8 w-8" src={Teams} alt="teams" /> */}
-                    </td> 
+                      <img
+                        className="h-8 w-8 cursor-pointer"
+                        src={claim}
+                        alt="claim"
+                        title="Claim Ticket"
+                        onClick={() => handleClaimTicket(data.ticket_id)}
+                      />
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -211,7 +239,9 @@ const handlePopUpClose = () => {
           Next
         </button>
       </div>
-      {selectedTicket ? <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose}  /> : null}
+      {selectedTicket ? (
+        <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose} />
+      ) : null}
     </div>
   );
 };
