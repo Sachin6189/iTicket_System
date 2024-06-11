@@ -82,13 +82,13 @@ app.post('/api/solutions', (req, res) => {
     solution_by_name,
     status,
     issue_tag_type,
-    solution_time,
+    consume_time,
     sol_desc,
   } = req.body;
 
   const sql = `
     INSERT INTO its_solution
-    (ticket_id, solution_by_id, solution_by_name, status, issue_tag_type, solution_time, sol_desc)
+    (ticket_id, solution_by_id, solution_by_name, status, issue_tag_type, consume_time, sol_desc)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -100,7 +100,7 @@ app.post('/api/solutions', (req, res) => {
       solution_by_name,
       status,
       issue_tag_type,
-      solution_time,
+      consume_time,
       sol_desc,
      
     ],
@@ -190,6 +190,8 @@ app.post("/submit", (req, res) => {
   );
 });
 
+//update support person
+
 app.post('/api/update-ticket', (req, res) => {
   console.log(req.body);
   const { ticketId, status, assignToName } = req.body;
@@ -216,6 +218,8 @@ app.post('/api/update-ticket', (req, res) => {
   });
 });
 
+//update claim button
+
 app.post('/api/claim-ticket', (req, res) => {
   const { ticketId } = req.body;
   const assignToName = req.body.assignToName || 'Unassigned'; 
@@ -239,6 +243,34 @@ app.post('/api/claim-ticket', (req, res) => {
     }
 
     res.status(200).json({ message: 'Ticket claimed successfully' });
+  });
+});
+
+
+//update approver
+
+app.post('/api/update-approver', (req, res) => {
+  const { ticketId, approverName, approverId, approvalRequiredNum } = req.body;
+
+  const sql = `
+    UPDATE its_tickets
+    SET approver_chk = ?, approver_id = ?, approver_name = ?
+    WHERE ticket_id = ?
+  `;
+
+  db.query(sql, [approvalRequiredNum, approverId, approverName, ticketId], (err, result) => {
+    if (err) {
+      console.error('Error updating approver:', err);
+      res.status(500).send('Error updating approver');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Ticket not found');
+      return;
+    }
+
+    res.status(200).json({ message: 'Approver updated successfully' });
   });
 });
 
@@ -355,6 +387,80 @@ app.get("/api/issue-tags", (req, res) => {
     res.status(200).json(result);
   });
 });
+
+app.get("/api/total-tickets-raised", (req, res) => {
+  const sql = "SELECT COUNT(*) AS totalTickets FROM its_tickets";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].totalTickets);
+  });
+});
+
+app.get("/api/open-tickets-count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS openTickets FROM its_tickets WHERE status = 'Open'";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].openTickets);
+  });
+});
+
+app.post("/api/tickets-pending-on-me", (req, res) => {
+  const { user_name } = req.body;
+  const sql = "SELECT COUNT(*) AS ticketsPendingOnMe FROM its_tickets WHERE status = 'Open' AND asignto_name = ?";
+
+  db.query(sql, [user_name], (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].ticketsPendingOnMe);
+  });
+});
+
+
+app.get("/api/unclaimed-tickets-count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS unclaimedTickets FROM its_tickets WHERE asignto_name IS NULL";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].unclaimedTickets);
+  });
+});
+
+
+app.get("/api/resolved-tickets-count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS resolvedTickets FROM its_tickets WHERE status = 'Close'";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].resolvedTickets);
+  });
+});
+
 
 const PORT = process.env.PORT || 5000;
 

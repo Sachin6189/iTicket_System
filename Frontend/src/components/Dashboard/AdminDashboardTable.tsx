@@ -151,8 +151,8 @@ const AdminDashboardTable: React.FC = () => {
                     <td className="px-4 py-2 border">{data.raiser_name}</td>
                     <td className="px-4 py-2 border">{data.locn_name}</td>
                     <td className="px-4 py-2 border">{data.contact_no}</td>
-                    <td className="px-4 py-2 border">{data.approver_name}</td>
-                    <td className="px-4 py-2 border">{data.asignto_name}</td>
+                    <td className="px-4 py-2 border">{data.approver_name || "-"}{data.approver_id ? ` (${data.approver_id})` : ""}</td>
+                    <td className="px-4 py-2 border">{data.asignto_name || <span className="text-red-500">Unclaimed</span> }</td>
                     <td className="px-4 py-2 border">
                       {new Date(data.created)
                         .toLocaleString("en-IN", {
