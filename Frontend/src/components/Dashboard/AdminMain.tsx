@@ -11,6 +11,7 @@ import AdminDashboardTable from "./AdminDashboardTable";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LoginContext } from "../../LoginContext";
+import ApprovalTable from "./ApprovalTable";
 
 const AdminMain: React.FC = () => {
   const [totalTicketsRaised, setTotalTicketsRaised] = useState(0);
@@ -20,6 +21,8 @@ const AdminMain: React.FC = () => {
   const [resolvedTickets, setResolvedTickets] = useState(0);
   const [filterStatus, setFilterStatus] = useState<string | null>("Open");
   const [filterOption, setFilterOption] = useState<string | null>(null);
+  const [showApprovalTable, setShowApprovalTable] = useState(false);
+  const [showAdminDashboardTable, setShowAdminDashboardTable] = useState(true);
 
   const { user } = useContext(LoginContext);
   const { user_name } = user;
@@ -33,6 +36,12 @@ const AdminMain: React.FC = () => {
   const raiseAccess = () => {
     navigate("/dashboard/raiseAccess");
   };
+
+  const handleShowApprovalTable = () => {
+    setShowApprovalTable(!showApprovalTable);
+    setShowAdminDashboardTable(!showAdminDashboardTable);
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,17 +85,24 @@ const AdminMain: React.FC = () => {
   const handleStatusFilter = (status: string | null) => {
     setFilterStatus(status);
     setFilterOption(null);
+    setShowApprovalTable(false);
+    setShowAdminDashboardTable(true)
   };
 
   const handleTicketsPendingOnMe = () => {
     setFilterStatus("Open");
     setFilterOption("ticketsPendingOnMe");
+    setShowApprovalTable(false);
+    setShowAdminDashboardTable(true)
   };
 
   const handleUnclaimedTickets = () => {
     setFilterStatus(null);
     setFilterOption("unclaimedTickets");
+    setShowApprovalTable(false);
+    setShowAdminDashboardTable(true)
   };
+
 
   return (
     <div className="overflow-x-auto">
@@ -214,16 +230,23 @@ const AdminMain: React.FC = () => {
           <div className="pl-2">
             <div>Pending Approval on me</div>
             <div className="text-3xl">{approvalPendingOnMe}</div>
-            <div className="mt-2 flex text-gray-600 text-xs cursor-pointer">
-              More Info <img className="h-4 w-4 pl-1" src={arrow} alt="arrow" />
+            <div
+              className="mt-2 flex text-gray-600 text-xs cursor-pointer"
+              onClick={handleShowApprovalTable}
+            >
+              Show Pending Approval on me
+              <img className="h-4 w-4 pl-1" src={arrow} alt="arrow" />
             </div>
           </div>
         </div>
       </div>
-      <AdminDashboardTable
-        filterStatus={filterStatus}
-        filterOption={filterOption}
-      />
+      {showAdminDashboardTable && (
+        <AdminDashboardTable
+          filterStatus={filterStatus}
+          filterOption={filterOption}
+        />
+      )}
+      {showApprovalTable && <ApprovalTable />}
     </div>
   );
 };

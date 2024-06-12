@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import _ from "lodash";
 import axios from "axios";
 import ReplyTicket from "./ReplyTicket";
-import claim from "../assets/select.png";
-import Teams from "../assets/teams.png";
+import claim from "../assets/claim.gif";
+// import Teams from "../assets/teams.png"; 
 import { LoginContext } from "../../LoginContext";
 
 interface AdminDashboardTableProps {
@@ -176,6 +176,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                   >
                     <td
                       className="px-4 py-2 cursor-pointer text-blue-500 hover:underline"
+                      title="Reply"
                       onClick={() => handleIssueClick(data)}
                     >
                       {data.ticket_id}
@@ -185,8 +186,10 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                     <td className="px-4 py-2 border">{data.category_name}</td>
                     <td
                       className="px-4 py-2 cursor-pointer text-blue-500 hover:underline"
+                      title="Reply"
                       onClick={() => handleIssueClick(data)}
                     >
+                      
                       {data.issue_subject}
                     </td>
                     <td className="px-4 py-2 border">{data.status}</td>
@@ -199,7 +202,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                     </td>
                     <td className="px-4 py-2 border">
                       {data.asignto_name || (
-                        <span className="text-red-500">Unclaimed</span>
+                        <span className="text-red-500 italic">Unclaimed</span>
                       )}
                     </td>
                     <td className="px-4 py-2 border">
@@ -256,7 +259,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                     </td>
                     <td className="px-4 py-2 border">
                       <img
-                        className="h-8 w-8 cursor-pointer"
+                        className="h-10 w-10 cursor-pointer"
                         src={claim}
                         alt="claim"
                         title="Claim Ticket"
@@ -269,25 +272,34 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
           </table>
         </div>
       </div>
-      <div className="mt-4 flex justify-center">
-        <button
-          className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span className="px-4 py-2">
-          Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
-        </span>
-        <button
-          className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === Math.ceil(ticketData.length / itemsPerPage)}
-        >
-          Next
-        </button>
-      </div>
+      <div className="mt-4 flex justify-between items-center">
+  <span className="text-gray-700">
+    Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+    {currentPage * itemsPerPage > ticketData.length
+      ? ticketData.length
+      : currentPage * itemsPerPage}{" "}
+    of {ticketData.length} entries
+  </span>
+  <div className="flex">
+    <button
+      className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
+      onClick={() => setCurrentPage(currentPage - 1)}
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+    <span className="px-4 py-2">
+      Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
+    </span>
+    <button
+      className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
+      onClick={() => setCurrentPage(currentPage + 1)}
+      disabled={currentPage === Math.ceil(ticketData.length / itemsPerPage)}
+    >
+      Next
+    </button>
+  </div>
+</div>
       {selectedTicket ? (
         <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose} />
       ) : null}
