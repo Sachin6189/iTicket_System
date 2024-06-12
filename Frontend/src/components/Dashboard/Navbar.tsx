@@ -8,7 +8,7 @@ import { LoginContext } from "../../LoginContext";
 const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
   const [showSignout, setShowSignout] = useState(false);
   const { user } = useContext(LoginContext);
-
+  const { user_id, user_name, user_email } = user;
 
   const navigate = useNavigate();
 
@@ -33,19 +33,21 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
               className="h-8 w-8 rounded-full cursor-pointer"
               onClick={() => setShowSignout(!showSignout)}
             />
-             
+
             {showSignout && (
               <button
                 className="absolute top-12 left-0 bg-gray-800 text-[#47c8c3] font-semibold font-[fangsong] px-6 py-2 rounded shadow-md border-0 whitespace-nowrap"
                 onClick={handleSignout}
               >
+                {/* <div className="text-xm text-white">{user_email}</div>
+                <div className="text-xl text-white">({user_id})</div> */}
                 Log Out
               </button>
             )}
           </div>
-        
+
           <span className="text-[#47c8c3] font-semibold font-[fangsong]">
-          {user.user_name}
+            {user.user_name}
           </span>
           <img
             src={sidebar}
@@ -54,7 +56,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
             onClick={toggleSidebar}
           />
         </div>
-      </nav> 
+      </nav>
     </div>
   );
 };
