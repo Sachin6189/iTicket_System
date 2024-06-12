@@ -1,141 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
-import _ from "lodash";
-import axios from "axios";
-import ReplyTicket from "./ReplyTicket";
-import claim from "../assets/select.png";
-import Teams from "../assets/teams.png";
-import { LoginContext } from "../../LoginContext";
+import React from 'react'
 
-interface AdminDashboardTableProps {
-  filterStatus: string | null;
-  filterOption: string | null;
-}
-
-const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
-  filterStatus,
-  filterOption,
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [ticketData, setTicketData] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [selectedTicket, setSelectedTicket] = useState(null);
-
-  const { user } = useContext(LoginContext);
-  const { user_id, user_name } = user;
-
-  const handleIssueClick = (ticket: any) => {
-    setSelectedTicket(ticket);
-  };
-
-  const handlePopUpClose = () => {
-    setSelectedTicket(null);
-  };
-
-  const getHeadingText = () => {
-    if (filterOption === "ticketsPendingOnMe") {
-      return "Tickets Pending On Me";
-    } else if (filterOption === "unclaimedTickets") {
-      return "Unclaimed Tickets";
-    } else if (filterStatus === "Open") {
-      return "Open Tickets";
-    } else if (filterStatus === "Close") {
-      return "Resolved Tickets";
-    } else {
-      return "Raised Tickets";
-    }
-  };
-
-  const fetchTicketData = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/tickets");
-      const sortedData = response.data.slice().sort((a: any, b: any) => {
-        const dateA = new Date(a.created.toString());
-        const dateB = new Date(b.created.toString());
-        return dateB.getTime() - dateA.getTime();
-      });
-
-      let filteredData = sortedData;
-
-      if (filterStatus) {
-        filteredData = sortedData.filter(
-          (ticket: any) => ticket.status === filterStatus
-        );
-      }
-
-      if (filterOption === "ticketsPendingOnMe") {
-        filteredData = filteredData.filter(
-          (ticket: any) =>
-            ticket.status === "Open" && ticket.asignto_name === user_name
-        );
-      } else if (filterOption === "unclaimedTickets") {
-        filteredData = filteredData.filter(
-          (ticket: any) => !ticket.asignto_name
-        );
-      }
-
-      setTicketData(filteredData);
-    } catch (error) {
-      console.error("Error fetching ticket data:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTicketData();
-  }, [filterStatus, filterOption, user_name]);
-
-  const handleClaimTicket = async (ticketId: string) => {
-    try {
-      await axios.post("http://localhost:5000/api/claim-ticket", {
-        ticketId,
-        assignToName: user_name,
-      });
-      alert("Ticket Claimed");
-      fetchTicketData();
-    } catch (error) {
-      console.error("Error claiming ticket:", error);
-    }
-  };
-
-  const debouncedFilterData = _.debounce((searchTerm) => {
-    if (searchTerm.trim() === "") {
-      fetchTicketData();
-      setCurrentPage(1);
-    } else {
-      setTicketData(
-        ticketData.filter(
-          (data: any) =>
-            data.project_name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data.category_name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            data.issue_subject
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data.status.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-      setCurrentPage(1);
-    }
-  }, 500);
-
+const ApprovalTable = () => {
   return (
     <div className="max-w-full px-4 py-8">
       <div className="flex justify-between">
-        <h2 className="mt-2 text-2xl font-bold font-[fangsong] text-gray-800">{getHeadingText()}</h2>
+        
         <input
           type="text"
           placeholder="Search..."
           className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            debouncedFilterData(e.target.value);
-          }}
+        //   onChange={(e) => {
+        //     setSearchTerm(e.target.value);
+        //     debouncedFilterData(e.target.value);
+        //   }}
           
         />
       </div>
@@ -163,7 +40,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                 <th className="px-4 py-2 text-left border">Action</th>
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
               {ticketData
                 .slice(
                   (currentPage - 1) * itemsPerPage,
@@ -265,34 +142,32 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                     </td>
                   </tr>
                 ))}
-            </tbody>
+            </tbody> */}
           </table>
         </div>
       </div>
       <div className="mt-4 flex justify-center">
         <button
           className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
+        //   onClick={() => setCurrentPage(currentPage - 1)}
+        //   disabled={currentPage === 1}
         >
           Previous
         </button>
         <span className="px-4 py-2">
-          Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
+          {/* Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)} */}
         </span>
         <button
           className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === Math.ceil(ticketData.length / itemsPerPage)}
+        //   onClick={() => setCurrentPage(currentPage + 1)}
+        //   disabled={currentPage === Math.ceil(ticketData.length / itemsPerPage)}
         >
           Next
         </button>
       </div>
-      {selectedTicket ? (
-        <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose} />
-      ) : null}
+      
     </div>
-  );
-};
+  )
+}
 
-export default AdminDashboardTable;
+export default ApprovalTable
