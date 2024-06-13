@@ -1,22 +1,72 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { LoginContext } from "../../LoginContext";
+import takeAction from "../assets/action.gif";
+import ApproverPopUp from "./ApproverPopUp";
+
+interface TicketData {
+  ticket_id: string;
+  project_name: string;
+  module_name: string;
+  category_name: string;
+  issue_subject: string;
+  status: string;
+  raiser_name: string;
+  locn_name: string;
+  contact_no: string;
+  approver_name: string;
+  created: string;
+  approver_chk: number;
+  approver_id: string;
+}
+
+interface User {
+  user_id: string;
+  user_name: string;
+}
 
 const ApprovalTable = () => {
+  const [ticketData, setTicketData] = useState<TicketData[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
 
+  const { user } = useContext(LoginContext);
+  const { user_id, user_name } = user;
 
+  const handleAction = (ticket: TicketData) => {
+    setSelectedTicket(ticket);
+    setShowPopup(true);
+  };
 
+  useEffect(() => {
+    const fetchTicketData = async () => {
+      try {
+        const response = await axios.get<TicketData[]>(
+          "http://localhost:5000/api/tickets"
+        );
+        const filteredData = response.data.filter(
+          (ticket: any) =>
+            ticket.approver_chk === 1 &&
+            ticket.approver_id === user_id &&
+            ticket.approver_name === user_name
+        );
+        setTicketData(filteredData);
+      } catch (error) {
+        console.error("Error fetching ticket data:", error);
+      }
+    };
 
+    fetchTicketData();
+  }, [user_id, user_name]);
 
   return (
     <div className="max-w-full px-4 py-8">
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <h2 className="mt-2 text-2xl font-bold font-[fangsong] text-gray-800">Approval Pending On Me</h2>
         <input
           type="text"
           placeholder="Search..."
           className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-          //   onChange={(e) => {
-          //     setSearchTerm(e.target.value);
-          //     debouncedFilterData(e.target.value);
-          //   }}
         />
       </div>
 
@@ -41,26 +91,94 @@ const ApprovalTable = () => {
                 <th className="px-4 py-2 text-left border">Action</th>
               </tr>
             </thead>
+            <tbody>
+              {ticketData.map((data, index) => (
+                <tr
+                  key={index}
+                  className="odd:bg-white even:bg-gray-100 border"
+                >
+                  <td className="px-4 py-2 border">{data.ticket_id}</td>
+                  <td className="px-4 py-2 border">{data.project_name}</td>
+                  <td className="px-4 py-2 border">{data.module_name}</td>
+                  <td className="px-4 py-2 border">{data.category_name}</td>
+                  <td className="px-4 py-2 border">{data.issue_subject}</td>
+                  <td className="px-4 py-2 border">{data.status}</td>
+                  <td className="px-4 py-2 border">{data.raiser_name}</td>
+                  <td className="px-4 py-2 border">{data.locn_name}</td>
+                  <td className="px-4 py-2 border">{data.contact_no}</td>
+                  <td className="px-4 py-2 border">{data.approver_name}</td>
+                  <td className="px-4 py-2 border">
+                    {new Date(data.created)
+                      .toLocaleString("en-IN", {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hourCycle: "h12",
+                      })
+                      .replace(/\bam\b/g, "AM")
+                      .replace(/\bpm\b/g, "PM")}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {new Date(data.created)
+                      .toLocaleString("en-IN", {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hourCycle: "h12",
+                      })
+                      .replace(/\bam\b/g, "AM")
+                      .replace(/\bpm\b/g, "PM")}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {new Date(data.created)
+                      .toLocaleString("en-IN", {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hourCycle: "h12",
+                      })
+                      .replace(/\bam\b/g, "AM")
+                      .replace(/\bpm\b/g, "PM")}
+                  </td>
+                  <td className="px-4 py-2 border" title="Take Action">
+                    <img
+                      className="h-10 w-10 hover:cursor-pointer"
+                      src={takeAction}
+                      alt="Action"
+                      onClick={() => handleAction(data)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
       <div className="mt-4 flex justify-center">
-        <button
-          className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
-         
-        >
+        <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2">
           Previous
         </button>
-        <span className="px-4 py-2">
-        
-        </span>
-        <button
-          className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
-       
-        >
+        <span className="px-4 py-2"></span>
+        <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2">
           Next
         </button>
       </div>
+      {showPopup && selectedTicket && (
+        <ApproverPopUp
+          showPopup={showPopup}
+          handleClose={() => {
+            setShowPopup(false);
+            setSelectedTicket(null);
+          }}
+          ticket={selectedTicket}
+        />
+      )}
     </div>
   );
 };

@@ -193,7 +193,7 @@ app.post("/submit", (req, res) => {
 //update support person
 
 app.post('/api/update-ticket', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { ticketId, status, assignToName } = req.body;
 
   const sql = `
@@ -274,6 +274,49 @@ app.post('/api/update-approver', (req, res) => {
   });
 });
 
+app.post('/api/update-approval-status', (req, res) => {
+  const { ticketId, approverRemark, approverEmail, approvalStatus } = req.body;
+  const approverDate = new Date();
+
+  let approverStatus;
+  let approverChkValue;
+
+  if (approvalStatus === 'approve') {
+    approverStatus = 'Approved';
+    approverChkValue = 0; // Set approver_chk to 0 after approval
+  } else if (approvalStatus === 'reject') {
+    approverStatus = 'Rejected';
+    approverChkValue = 0; // Set approver_chk to 0 after rejection
+  } else {
+    return res.status(400).json({ error: 'Invalid approval status' });
+  }
+
+  const sql = `
+    UPDATE its_tickets
+    SET approver_remark = ?, approver_status = ?, approver_mail = ?, approver_date = ?, approver_chk = ?
+    WHERE ticket_id = ?
+  `;
+
+  db.query(sql, [approverRemark, approverStatus, approverEmail, approverDate, approverChkValue, ticketId], (err, result) => {
+    if (err) {
+      console.error('Error updating ticket:', err);
+      res.status(500).send('Error updating ticket');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Ticket not found');
+      return;
+    }
+
+    const message = approvalStatus === 'approve'
+      ? 'Ticket approved successfully'
+      : 'Ticket rejected successfully';
+
+    res.status(200).json({ message });
+  });
+});
+
 app.get("/api/tickets", (req, res) => {
   const sql = "SELECT * FROM its_tickets";
 
@@ -333,7 +376,7 @@ app.post("/api/modules", (req, res) => {
     if (err) {
       console.error("Error executing query:", err);
       res.status(500).send("Internal server error");
-      console.log(result);
+      // console.log(result);
       return;
     }
 
@@ -461,6 +504,21 @@ app.get("/api/resolved-tickets-count", (req, res) => {
   });
 });
 
+
+app.post("/api/pending-approvals-count", (req, res) => {
+  const { user_name } = req.body;
+  const sql = "SELECT COUNT(*) AS pendingApprovals FROM its_tickets WHERE approver_name = ? AND status = 'Open' AND approver_chk = 1";
+
+  db.query(sql, [user_name], (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.status(200).json(result[0].pendingApprovals);
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 

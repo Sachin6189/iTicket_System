@@ -13,6 +13,7 @@ import axios from "axios";
 import { LoginContext } from "../../LoginContext";
 import ApprovalTable from "./ApprovalTable";
 
+
 const AdminMain: React.FC = () => {
   const [totalTicketsRaised, setTotalTicketsRaised] = useState(0);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
@@ -23,6 +24,7 @@ const AdminMain: React.FC = () => {
   const [filterOption, setFilterOption] = useState<string | null>(null);
   const [showApprovalTable, setShowApprovalTable] = useState(false);
   const [showAdminDashboardTable, setShowAdminDashboardTable] = useState(true);
+  const [approvalPendingOnMe, setApprovalPendingOnMe] = useState(0);
 
   const { user } = useContext(LoginContext);
   const { user_name } = user;
@@ -71,6 +73,13 @@ const AdminMain: React.FC = () => {
           "http://localhost:5000/api/resolved-tickets-count"
         );
         setResolvedTickets(resolvedTicketsResponse.data);
+
+        const pendingApprovalsResponse = await axios.post(
+          "http://localhost:5000/api/pending-approvals-count",
+          { user_name }
+        );
+        setApprovalPendingOnMe(pendingApprovalsResponse.data);
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -80,7 +89,7 @@ const AdminMain: React.FC = () => {
   }, [user_name]);
 
   const raiseAccessRequest = 0;
-  const approvalPendingOnMe = 0;
+  
 
   const handleStatusFilter = (status: string | null) => {
     setFilterStatus(status);
@@ -234,7 +243,7 @@ const AdminMain: React.FC = () => {
               className="mt-2 flex text-gray-600 text-xs cursor-pointer"
               onClick={handleShowApprovalTable}
             >
-              Show Pending Approval on me
+              More Info
               <img className="h-4 w-4 pl-1" src={arrow} alt="arrow" />
             </div>
           </div>
