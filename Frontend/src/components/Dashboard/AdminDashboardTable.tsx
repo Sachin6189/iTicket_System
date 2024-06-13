@@ -3,7 +3,7 @@ import _ from "lodash";
 import axios from "axios";
 import ReplyTicket from "./ReplyTicket";
 import claim from "../assets/claim.gif";
-// import Teams from "../assets/teams.png"; 
+// import Teams from "../assets/teams.png";
 import { LoginContext } from "../../LoginContext";
 
 interface AdminDashboardTableProps {
@@ -20,6 +20,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showClaimAction, setShowClaimAction] = useState(false);
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name } = user;
@@ -31,6 +32,8 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
   const handlePopUpClose = () => {
     setSelectedTicket(null);
   };
+
+ 
 
   const getHeadingText = () => {
     if (filterOption === "ticketsPendingOnMe") {
@@ -97,6 +100,11 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
     }
   };
 
+  useEffect(() => {
+    fetchTicketData();
+    setShowClaimAction(filterOption === "unclaimedTickets");
+  }, [filterStatus, filterOption, user_name]);
+
   const debouncedFilterData = _.debounce((searchTerm) => {
     if (searchTerm.trim() === "") {
       fetchTicketData();
@@ -127,7 +135,9 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
   return (
     <div className="max-w-full px-4 py-8">
       <div className="flex justify-between">
-        <h2 className="mt-2 text-2xl font-bold font-[fangsong] text-gray-800">{getHeadingText()}</h2>
+        <h2 className="mt-2 text-2xl font-bold font-[fangsong] text-gray-800">
+          {getHeadingText()}
+        </h2>
         <input
           type="text"
           placeholder="Search..."
@@ -136,10 +146,9 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
             setSearchTerm(e.target.value);
             debouncedFilterData(e.target.value);
           }}
-          
         />
       </div>
-      
+
       <div className="mt-4">
         <div className="overflow-x-auto rounded-lg shadow-xl">
           <table className="w-full table-auto border-collapse border-gray-300">
@@ -189,7 +198,6 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                       title="Reply"
                       onClick={() => handleIssueClick(data)}
                     >
-                      
                       {data.issue_subject}
                     </td>
                     <td className="px-4 py-2 border">{data.status}</td>
@@ -258,13 +266,15 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                         .replace(/\bpm\b/g, "PM")}
                     </td>
                     <td className="px-4 py-2 border">
-                      <img
-                        className="h-10 w-10 cursor-pointer"
-                        src={claim}
-                        alt="claim"
-                        title="Claim Ticket"
-                        onClick={() => handleClaimTicket(data.ticket_id)}
-                      />
+                      {showClaimAction && (
+                        <img
+                          className="h-10 w-10 cursor-pointer"
+                          src={claim}
+                          alt="claim"
+                          title="Claim Ticket"
+                          onClick={() => handleClaimTicket(data.ticket_id)}
+                        />
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -273,33 +283,35 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
         </div>
       </div>
       <div className="mt-4 flex justify-between items-center">
-  <span className="text-gray-700">
-    Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-    {currentPage * itemsPerPage > ticketData.length
-      ? ticketData.length
-      : currentPage * itemsPerPage}{" "}
-    of {ticketData.length} entries
-  </span>
-  <div className="flex">
-    <button
-      className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
-      onClick={() => setCurrentPage(currentPage - 1)}
-      disabled={currentPage === 1}
-    >
-      Previous
-    </button>
-    <span className="px-4 py-2">
-      Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
-    </span>
-    <button
-      className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
-      onClick={() => setCurrentPage(currentPage + 1)}
-      disabled={currentPage === Math.ceil(ticketData.length / itemsPerPage)}
-    >
-      Next
-    </button>
-  </div>
-</div>
+        <span className="text-gray-700">
+          Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+          {currentPage * itemsPerPage > ticketData.length
+            ? ticketData.length
+            : currentPage * itemsPerPage}{" "}
+          of {ticketData.length} entries
+        </span>
+        <div className="flex">
+          <button
+            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2">
+            Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
+          </span>
+          <button
+            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={
+              currentPage === Math.ceil(ticketData.length / itemsPerPage)
+            }
+          >
+            Next
+          </button>
+        </div>
+      </div>
       {selectedTicket ? (
         <ReplyTicket ticket={selectedTicket} onClose={handlePopUpClose} />
       ) : null}
