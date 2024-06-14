@@ -35,14 +35,20 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: any }) => {
             />
 
             {showSignout && (
-              <button
-                className="absolute top-12 left-0 bg-gray-800 text-[#47c8c3] font-semibold font-[fangsong] px-6 py-2 rounded shadow-md border-0 whitespace-nowrap"
-                onClick={handleSignout}
-              >
-                {/* <div className="text-xm text-white">{user_email}</div>
-                <div className="text-xl text-white">({user_id})</div> */}
-                Log Out
-              </button>
+              <div className="absolute top-full right-0 mt-2 -mr-16 bg-gradient-to-b from-gray-800 bg-gray-400 text-gray-800 p-4 rounded-lg shadow-md font-[fangsong] w-72">
+                <img src={userlogo} alt="User" className="h-16 w-16 rounded-full mx-auto mb-4" />
+                <div className="flex justify-center items-center gap-2">
+                  <h2 className="text-xl text-[#47c8c3] font-bold">{user_name}</h2>
+                  <p className="text-xl text-[#47c8c3] font-bold">- {user_id}</p>
+                </div>
+                <p className="text-xl text-[#47c8c3] text-center mt-2">{user_email}</p>
+                <button
+                  className="w-full mt-4 bg-gray-500 font-semibold py-2 px-4 text-[#47c8c3] rounded"
+                  onClick={handleSignout}
+                >
+                  Sign out
+                </button>
+              </div>
             )}
           </div>
 

@@ -3,6 +3,8 @@ import axios from "axios";
 import { LoginContext } from "../../LoginContext";
 import takeAction from "../assets/action.gif";
 import ApproverPopUp from "./ApproverPopUp";
+import _ from "lodash";
+
 
 interface TicketData {
   ticket_id: string;
@@ -29,6 +31,10 @@ const ApprovalTable = () => {
   const [ticketData, setTicketData] = useState<TicketData[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name } = user;
@@ -38,26 +44,54 @@ const ApprovalTable = () => {
     setShowPopup(true);
   };
 
-  useEffect(() => {
-    const fetchTicketData = async () => {
-      try {
-        const response = await axios.get<TicketData[]>(
-          "http://localhost:5000/api/tickets"
-        );
-        const filteredData = response.data.filter(
-          (ticket: any) =>
-            ticket.approver_chk === 1 &&
-            ticket.approver_id === user_id &&
-            ticket.approver_name === user_name
-        );
-        setTicketData(filteredData);
-      } catch (error) {
-        console.error("Error fetching ticket data:", error);
-      }
-    };
+  const fetchTicketData = async () => {
+    try {
+      const response = await axios.get<TicketData[]>(
+        "http://localhost:5000/api/tickets"
+      );
+      const filteredData = response.data.filter(
+        (ticket: any) =>
+          ticket.approver_chk === 1 &&
+          ticket.approver_id === user_id &&
+          ticket.approver_name === user_name
+      );
+      setTicketData(filteredData);
+    } catch (error) {
+      console.error("Error fetching ticket data:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchTicketData();
   }, [user_id, user_name]);
+
+  const debouncedFilterData = _.debounce((searchTerm) => {
+    if (searchTerm.trim() === "") {
+      fetchTicketData();
+      setCurrentPage(1);
+    } else {
+      setTicketData(
+        ticketData.filter(
+          (data: any) =>
+            data.project_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            data.module_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.category_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            data.issue_subject
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            data.contact_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.locn_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.status.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+      setCurrentPage(1);
+    }
+  }, 500);
+
 
   return (
     <div className="max-w-full px-4 py-8">
@@ -67,6 +101,10 @@ const ApprovalTable = () => {
           type="text"
           placeholder="Search..."
           className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            debouncedFilterData(e.target.value);
+          }}
         />
       </div>
 
@@ -160,14 +198,35 @@ const ApprovalTable = () => {
           </table>
         </div>
       </div>
-      <div className="mt-4 flex justify-center">
-        <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2">
-          Previous
-        </button>
-        <span className="px-4 py-2"></span>
-        <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2">
-          Next
-        </button>
+      <div className="mt-4 flex justify-between items-center">
+        <span className="text-gray-700">
+          Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+          {currentPage * itemsPerPage > ticketData.length
+            ? ticketData.length
+            : currentPage * itemsPerPage}{" "}
+          of {ticketData.length} entries
+        </span>
+        <div className="flex">
+          <button
+            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 mr-2"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2">
+            Page {currentPage} of {Math.ceil(ticketData.length / itemsPerPage)}
+          </span>
+          <button
+            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 ml-2"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={
+              currentPage === Math.ceil(ticketData.length / itemsPerPage)
+            }
+          >
+            Next
+          </button>
+        </div>
       </div>
       {showPopup && selectedTicket && (
         <ApproverPopUp
