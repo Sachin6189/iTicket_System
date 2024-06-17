@@ -240,7 +240,7 @@ const AdminDashboardTable: React.FC<AdminDashboardTableProps> = ({
                         .replace(/\bpm\b/g, "PM")}
                     </td>
                     <td className="px-4 py-2 border">
-                      {new Date(data.created)
+                      {new Date(data.solution_at)
                         .toLocaleString("en-IN", {
                           year: "numeric",
                           month: "numeric",

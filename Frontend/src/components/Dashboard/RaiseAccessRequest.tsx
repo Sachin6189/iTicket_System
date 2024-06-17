@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Select, { StylesConfig } from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 interface Option {
@@ -14,11 +15,13 @@ interface Option {
 const RaiseAccessRequest: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Option | null>(null);
+  const [projects, setProjects] = useState<Option[]>([]);
+  const [filteredModules, setFilteredModules] = useState<Option[]>([]);
   const [selectedModule, setSelectedModule] = useState<Option | null>(null);
-  const [selectedAccessRole, setSelectedAccessRole] = useState<Option | null>(
-    null
-  );
+  const [filteredAccess, setFilteredAccess] = useState<Option[]>([]);
+  const [selectedAccess, setSelectedAccess] = useState<Option | null>(null);
   const [contact, setContact] = useState("");
+  
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
@@ -47,11 +50,102 @@ const RaiseAccessRequest: React.FC = () => {
     navigate("/dashboard");
   };
 
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/projects");
+      setProjects(
+        response.data.map((project: any) => ({
+          value: project.proj_name,
+          label: project.proj_name,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/modules", {
+        projectName: selectedProject?.value,
+      });
+
+      setFilteredModules(
+        response.data.map((moduleName: any) => ({
+          value: moduleName.mod_name,
+          label: moduleName.mod_name,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedProject) {
+      fetchModules();
+      setFilteredModules([]);
+      setSelectedModule(null);
+      setSelectedAccess(null);
+    } else {
+      setFilteredModules([]);
+      setSelectedModule(null);
+      setSelectedAccess(null);
+    }
+  }, [selectedProject]);
+
+  const fetchAccess = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/access",
+        {
+          moduleName: selectedModule?.value,
+        }
+      );
+      setFilteredAccess(
+        response.data.map((AccessName: any) => ({
+          value: AccessName.access_name,
+          label: AccessName.access_name,
+          }))
+          );
+        // console.log(response)
+    } catch (error) {
+      console.error("Error fetching access role:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedModule) {
+      fetchAccess();
+      setFilteredAccess([]);
+      setSelectedAccess(null);
+    } else {
+      setFilteredAccess([]);
+      setSelectedAccess(null);
+    }
+  }, [selectedModule]);
+
   const handleSubmit = () => {
+    
+    if (
+      !selectedProject ||
+      !selectedModule ||
+      !selectedAccess ||
+      !contact ||
+      !description
+    ) {
+      alert("Please fill in all compulsory fields marked with *");
+      return;
+    }
+
     const formData = {
       selectedProject,
       selectedModule,
-      selectedAccessRole,
+      selectedAccess,
       contact,
       description,
     };
@@ -90,11 +184,6 @@ const RaiseAccessRequest: React.FC = () => {
     }),
   };
 
-  // Mock data for dropdowns, replace with actual data fetching logic
-  const projects: Option[] = [{ value: "project1", label: "Project 1" }];
-  const moduleOptions: Option[] = [{ value: "module1", label: "Module 1" }];
-  const accessRoles: Option[] = [{ value: "role1", label: "Role 1" }];
-
   return (
     <div className="flex flex-col min-h-screen font-[fangsong]">
       <Navbar toggleSidebar={toggleSidebar} />
@@ -129,7 +218,7 @@ const RaiseAccessRequest: React.FC = () => {
                     id="module"
                     value={selectedModule}
                     onChange={(option) => setSelectedModule(option)}
-                    options={moduleOptions}
+                    options={filteredModules}
                     placeholder="--Search a module--"
                     styles={customStyles}
                   />
@@ -143,9 +232,9 @@ const RaiseAccessRequest: React.FC = () => {
                   </label>
                   <Select<Option, false>
                     id="accessRole"
-                    value={selectedAccessRole}
-                    onChange={(option) => setSelectedAccessRole(option)}
-                    options={accessRoles}
+                    value={selectedAccess}
+                    onChange={(option) => setSelectedAccess(option)}
+                    options={filteredAccess}
                     placeholder="--Search an access role--"
                     styles={customStyles}
                   />
