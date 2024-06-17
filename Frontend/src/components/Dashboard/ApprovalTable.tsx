@@ -4,7 +4,7 @@ import { LoginContext } from "../../LoginContext";
 import takeAction from "../assets/action.gif";
 import ApproverPopUp from "./ApproverPopUp";
 import _ from "lodash";
-
+import AccessRequestTable from "../Dashboard/AccessRequestTable";
 
 interface TicketData {
   ticket_id: string;
@@ -34,7 +34,7 @@ const ApprovalTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [showApprovalTable, setShowApprovalTable] = useState(false);
 
   const { user } = useContext(LoginContext);
   const { user_id, user_name } = user;
@@ -92,11 +92,40 @@ const ApprovalTable = () => {
     }
   }, 500);
 
+  const approvalPending = 0;
+  const accessRequestPending = 0;
+
+  const handleTableSwitch = (showApproval: any) => {
+    setShowApprovalTable(showApproval);
+  };
 
   return (
     <div className="max-w-full px-4 py-8">
       <div className="flex justify-between">
-        <h2 className="mt-2 text-2xl font-bold font-[fangsong] text-gray-800">Approval Pending On Me</h2>
+        <div className="inline-flex rounded-md shadow-sm gap-4" role="group">
+          <button
+            type="button"
+            className={`py-2 px-4 text-sm font-medium rounded-l-md rounded-r-md ${
+              !showApprovalTable
+                ? "focus:ring-gray-400 focus:bg-gray-400 focus:outline-none text-black"
+                : "bg-white text-gray-700 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-gray-400 focus:bg-gray-400 focus:outline-none"
+            }`}
+            onClick={() => handleTableSwitch(false)}
+          >
+            Pending Access Request: {accessRequestPending}
+          </button>
+          <button
+            type="button"
+            className={`py-2 px-4 text-sm font-medium rounded-l-md rounded-r-md ${
+              showApprovalTable
+                ? "focus:ring-gray-400 focus:bg-gray-400 focus:outline-none text-black"
+                : "bg-white text-gray-700 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-gray-400 focus:bg-gray-400 focus:outline-none"
+            }`}
+            onClick={() => handleTableSwitch(true)}
+          >
+            Pending Approval: {approvalPending}
+          </button>
+        </div>
         <input
           type="text"
           placeholder="Search..."
@@ -108,96 +137,101 @@ const ApprovalTable = () => {
         />
       </div>
 
-      <div className="mt-4">
-        <div className="overflow-x-auto rounded-lg shadow-xl">
-          <table className="w-full table-auto border-collapse border-gray-300">
-            <thead className="bg-gray-800 font-[fangsong] text-white">
-              <tr>
-                <th className="px-4 py-2 text-left border">Ticket ID</th>
-                <th className="px-4 py-2 text-left border">Project</th>
-                <th className="px-4 py-2 text-left border">Module</th>
-                <th className="px-4 py-2 text-left border">Category</th>
-                <th className="px-4 py-2 text-left border">Issue Title</th>
-                <th className="px-4 py-2 text-left border">Status</th>
-                <th className="px-4 py-2 text-left border">Raiser</th>
-                <th className="px-4 py-2 text-left border">Location</th>
-                <th className="px-4 py-2 text-left border">Contact No.</th>
-                <th className="px-4 py-2 text-left border">Approver</th>
-                <th className="px-4 py-2 text-left border">Approval Date</th>
-                <th className="px-4 py-2 text-left border">Raised Time</th>
-                <th className="px-4 py-2 text-left border">Solution Time</th>
-                <th className="px-4 py-2 text-left border">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ticketData.map((data, index) => (
-                <tr
-                  key={index}
-                  className="odd:bg-white even:bg-gray-100 border"
-                >
-                  <td className="px-4 py-2 border">{data.ticket_id}</td>
-                  <td className="px-4 py-2 border">{data.project_name}</td>
-                  <td className="px-4 py-2 border">{data.module_name}</td>
-                  <td className="px-4 py-2 border">{data.category_name}</td>
-                  <td className="px-4 py-2 border">{data.issue_subject}</td>
-                  <td className="px-4 py-2 border">{data.status}</td>
-                  <td className="px-4 py-2 border">{data.raiser_name}</td>
-                  <td className="px-4 py-2 border">{data.locn_name}</td>
-                  <td className="px-4 py-2 border">{data.contact_no}</td>
-                  <td className="px-4 py-2 border">{data.approver_name}</td>
-                  <td className="px-4 py-2 border">
-                    {new Date(data.created)
-                      .toLocaleString("en-IN", {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hourCycle: "h12",
-                      })
-                      .replace(/\bam\b/g, "AM")
-                      .replace(/\bpm\b/g, "PM")}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {new Date(data.created)
-                      .toLocaleString("en-IN", {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hourCycle: "h12",
-                      })
-                      .replace(/\bam\b/g, "AM")
-                      .replace(/\bpm\b/g, "PM")}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {new Date(data.created)
-                      .toLocaleString("en-IN", {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hourCycle: "h12",
-                      })
-                      .replace(/\bam\b/g, "AM")
-                      .replace(/\bpm\b/g, "PM")}
-                  </td>
-                  <td className="px-4 py-2 border" title="Take Action">
-                    <img
-                      className="h-10 w-10 hover:cursor-pointer"
-                      src={takeAction}
-                      alt="Action"
-                      onClick={() => handleAction(data)}
-                    />
-                  </td>
+      {!showApprovalTable ? (
+        <AccessRequestTable />
+      ) : (
+        <div className="mt-4">
+          <div className="overflow-x-auto rounded-lg shadow-xl">
+            <table className="w-full table-auto border-collapse border-gray-300">
+              <thead className="bg-gray-800 font-[fangsong] text-white">
+                <tr>
+                  <th className="px-4 py-2 text-left border">Ticket no.</th>
+                  <th className="px-4 py-2 text-left border">Project</th>
+                  <th className="px-4 py-2 text-left border">Module</th>
+                  <th className="px-4 py-2 text-left border">Category</th>
+                  <th className="px-4 py-2 text-left border">Issue Title</th>
+                  <th className="px-4 py-2 text-left border">Status</th>
+                  <th className="px-4 py-2 text-left border">Raiser</th>
+                  <th className="px-4 py-2 text-left border">Location</th>
+                  <th className="px-4 py-2 text-left border">Contact No.</th>
+                  <th className="px-4 py-2 text-left border">Approver</th>
+                  <th className="px-4 py-2 text-left border">Approval Date</th>
+                  <th className="px-4 py-2 text-left border">Raised Time</th>
+                  <th className="px-4 py-2 text-left border">Solution Time</th>
+                  <th className="px-4 py-2 text-left border">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ticketData.map((data, index) => (
+                  <tr
+                    key={index}
+                    className="odd:bg-white even:bg-gray-100 border"
+                  >
+                    <td className="px-4 py-2 border">{data.ticket_id}</td>
+                    <td className="px-4 py-2 border">{data.project_name}</td>
+                    <td className="px-4py-2 border">{data.module_name}</td>
+                    <td className="px-4 py-2 border">{data.category_name}</td>
+                    <td className="px-4 py-2 border">{data.issue_subject}</td>
+                    <td className="px-4 py-2 border">{data.status}</td>
+                    <td className="px-4 py-2 border">{data.raiser_name}</td>
+                    <td className="px-4 py-2 border">{data.locn_name}</td>
+                    <td className="px-4 py-2 border">{data.contact_no}</td>
+                    <td className="px-4 py-2 border">{data.approver_name}</td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {new Date(data.created)
+                        .toLocaleString("en-IN", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace(/\bam\b/g, "AM")
+                        .replace(/\bpm\b/g, "PM")}
+                    </td>
+                    <td className="px-4 py-2 border" title="Take Action">
+                      <img
+                        className="h-10 w-10 hover:cursor-pointer"
+                        src={takeAction}
+                        alt="Action"
+                        onClick={() => handleAction(data)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
       <div className="mt-4 flex justify-between items-center">
         <span className="text-gray-700">
           Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
